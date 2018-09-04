@@ -1,0 +1,4287 @@
+# A 50-node example for ad-hoc simulation with EAODV
+
+# Define options
+set val(chan)     	Channel/WirelessChannel  	;# channel type
+set val(prop)		Propagation/TwoRayGround	;# radio-propagation model
+set val(netif)		Phy/WirelessPhy			;# network interface type
+set val(mac)		Mac/802_11			;#MAC type
+set val(ifq)		Queue/DropTail/PriQueue		;# interface queue type
+set val(ll)		LL				;# link layer type
+set val(ant)		Antenna/OmniAntenna		;# antenna model
+set val(ifqlen)		50				;# max packet in ifq
+set val(nn)		50				;# number of mobilenodes
+set val(rp)		AODV				;# routing protocol
+set val(x)		800				;# X dimension of topography
+set val(y)		800				;#  dimension of topography
+set val(stop)		100				;# time of simulation end
+
+
+set ns [new Simulator]
+
+$ns use-newtrace
+set tracefd	[open 50.tr w]
+
+
+set namtrace	[open 50.nam w]
+$ns namtrace-all-wireless $namtrace $val(x) $val(y)
+$ns trace-all $tracefd
+
+
+
+# define color index
+$ns color 0 blue
+$ns color 1 red
+$ns color 2 chocolate
+$ns color 4 brown
+$ns color 5 tan
+$ns color 6 gold
+$ns color 7 black               
+
+#set up topography object
+
+set topo [new Topography]
+
+# define topology
+$topo load_flatgrid $val(x) $val(y)
+
+
+ set god_ [create-god $val(nn)]
+
+# Initialize the SharedMedia interface with parameters to make it work like the 914MHz 
+# Lucent WaveLAN DSSS radio interface
+
+Phy/WirelessPhy set CPThresh_ 10.0		;# receive power threshold
+Phy/WirelessPhy set CSThresh_ 1.559e-11	;# -108.07154db carrier sense thresh
+Phy/WirelessPhy set RXThresh_ 3.652e-10	;# -94.374692db receive power thresh
+Phy/WirelessPhy set Rb_ 	2*1e6
+Phy/WirelessPhy set Pt_ 	0.2820	;# For 500m transmission range.
+Phy/WirelessPhy set freq_ 	914e+6 	;# frequency
+Phy/WirelessPhy set L_ 	0.2			;# system loss factor
+Phy/WirelessPhy set Pt_consume_ 0.660  	;# 1.6 W drained power for tx
+Phy/WirelessPhy set Pr_consume_ 0.395 	;# 1.2 W drained power for reception
+Phy/WirelessPhy set P_idle_ 0.035		;# 1.15 W drained power for idle
+
+set UR blackhole
+#Create nn mobilenodes [$val(nn)] and attach them to the channel.
+
+set chan_1 [new $val(chan)]
+
+#cofigure the nodes
+
+$ns node-config  -adhocRouting $val(rp) \
+		-llType $val(ll) \
+		-macType $val(mac)  \
+		-ifqType $val(ifq)  \
+		-ifqLen $val(ifqlen) \
+		-antType $val(ant) \
+		-propType $val(prop) \
+		-phyType $val(netif) \
+		-channelType $val(chan) \
+		-topoInstance $topo \
+		-agentTrace ON \
+		-routerTrace ON \
+		-macTrace OFF \
+		-movemenTrace ON 
+
+
+# Energy model
+      $ns node-config  -energyModel EnergyModel \
+                        -txPower 1.5 \
+                        -rxPower 1.0 \
+                        -idlePower 0.0 \
+                        -sensePower 0.0175 
+
+#next-hop information
+$ns compute-routes            
+
+ 
+
+## Provide initial location of mobilenodes..
+            
+         
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 90 \
+
+set node(0) [$ns node]                  
+$node(0) set X_ 400
+$node(0) set Y_ 400
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 6 \
+
+set node(1) [$ns node]                  
+$node(1) set X_ 150
+$node(1) set Y_ 200
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 81 \
+
+set node(2) [$ns node]                  
+$node(2) set X_ 300
+$node(2) set Y_ 400
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 8 \
+
+set node(3) [$ns node]                  
+$node(3) set X_ 700
+$node(3) set Y_ 130
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 4 \
+
+set node(4) [$ns node]                  
+$node(4) set X_ 200
+$node(4) set Y_ 300
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 9 \
+
+set node(5) [$ns node]                  
+$node(5) set X_ 800
+$node(5) set Y_ 600
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 79 \
+
+set node(6) [$ns node]                  
+$node(6) set X_ 600
+$node(6) set Y_ 390
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 78 \
+
+set node(7) [$ns node]                  
+$node(7) set X_ 150
+$node(7) set Y_ 150
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 80 \
+
+set node(8) [$ns node]                  
+$node(8) set X_ 200
+$node(8) set Y_ 150
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 91 \
+
+set node(9) [$ns node]                  
+$node(9) set X_ 100
+$node(9) set Y_ 300
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 81 \
+
+set node(10) [$ns node]
+$node(10) color red
+$ns at 0.0 " $node(10) color red" 
+              
+$node(10) set X_ 400
+$node(10) set Y_ 550
+
+
+
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 51 \
+
+set node(11) [$ns node]                  
+$node(11) set X_ 600
+$node(11) set Y_ 350
+
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+set node(12) [$ns node]                  
+$node(12) set X_ 550
+$node(12) set Y_ 300
+
+
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+
+set node(13) [$ns node]                  
+
+
+$node(13) set X_ 700
+$node(13) set Y_ 300
+
+
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 86 \
+
+set node(14) [$ns node]                  
+$node(14) set X_ 450
+$node(14) set Y_ 600
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 86 \
+
+set node(15) [$ns node]                  
+$node(15) set X_ 250
+$node(15) set Y_ 200
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 100 \
+
+set node(16) [$ns node]                  
+$node(16) set X_ 600
+$node(16) set Y_ 500
+
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 80 \
+
+set node(17) [$ns node]                  
+$node(17) set X_ 450
+$node(17) set Y_ 400
+
+
+$ns node-config -adhocRouting $UR
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 92 \
+
+set node(18) [$ns node]   
+$ns at 0.01 "$node(13) label \"U-to-R\""               
+$node(18) set X_ 650
+$node(18) set Y_ 500
+
+$ns node-config -adhocRouting AODV
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+set node(19) [$ns node]                  
+$node(19) set X_ 750
+$node(19) set Y_ 150
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 78 \
+
+set node(20) [$ns node]                  
+$node(20) set X_ 750
+$node(20) set Y_ 400
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 72 \
+
+set node(21) [$ns node]                  
+$node(21) set X_ 350
+$node(21) set Y_ 600
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 71 \
+
+set node(22) [$ns node]                  
+$node(22) set X_ 350
+$node(22) set Y_ 550
+
+ $ns node-config  -energyModel EnergyModel \
+-initialEnergy 60 \
+
+set node(23) [$ns node]                  
+$node(23) set X_ 600
+$node(23) set Y_ 600
+
+$ns node-config -adhocRouting $UR
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 96 \
+
+set node(24) [$ns node]  
+$ns at 0.01 "$node(24) label \"U-to-R\""                 
+$node(24) set X_ 300
+$node(24) set Y_ 350
+
+$ns node-config -adhocRouting AODV
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 25 \
+
+set node(25) [$ns node]                  
+$node(25) set X_ 750
+$node(25) set Y_ 250
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 52 \
+
+set node(26) [$ns node]                  
+$node(26) set X_ 750
+$node(26) set Y_ 150
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+set node(27) [$ns node]                  
+$node(27) set X_ 100
+$node(27) set Y_ 50
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 57 \
+
+set node(28) [$ns node]                  
+$node(28) set X_ 600
+$node(28) set Y_ 450
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 87 \
+
+set node(29) [$ns node]                  
+$node(29) set X_ 250
+$node(29) set Y_ 450
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 77 \
+
+set node(30) [$ns node]                  
+$node(30) set X_ 800
+$node(30) set Y_ 300
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 58 \
+
+set node(31) [$ns node]                  
+$node(31) set X_ 150
+$node(31) set Y_ 250
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 89 \
+
+set node(32) [$ns node]                  
+$node(32) set X_ 300
+$node(32) set Y_ 300
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 90 \
+
+set node(33) [$ns node]                  
+$node(33) set X_ 400
+$node(33) set Y_ 250
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 24 \
+
+set node(34) [$ns node]                  
+$node(34) set X_ 350
+$node(34) set Y_ 150
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 6 \
+
+set node(35) [$ns node]                  
+$node(35) set X_ 680
+$node(35) set Y_ 180
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 50 \
+
+set node(36) [$ns node]                  
+$node(36) set X_ 350
+$node(36) set Y_ 300
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 70 \
+
+set node(37) [$ns node]                  
+$node(37) set X_ 700
+$node(37) set Y_ 400
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 80 \
+
+set node(38) [$ns node]                  
+$node(38) set X_ 300
+$node(38) set Y_ 200
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 55 \
+
+set node(39) [$ns node]                  
+$node(39) set X_ 550
+$node(39) set Y_ 500
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 83 \
+
+set node(40) [$ns node]                  
+$node(40) set X_ 800
+$node(40) set Y_ 600
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 93 \
+
+set node(41) [$ns node]                  
+$node(41) set X_ 50
+$node(41) set Y_ 350
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 98 \
+
+set node(42) [$ns node]                  
+$node(42) set X_ 400
+$node(42) set Y_ 300
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 80 \
+
+set node(43) [$ns node]                  
+$node(43) set X_ 300
+$node(43) set Y_ 650
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 64 \
+
+set node(44) [$ns node]                  
+$node(44) set X_ 450
+$node(44) set Y_ 444
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 73 \
+
+set node(45) [$ns node]                  
+$node(45) set X_ 80
+$node(45) set Y_ 680
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+set node(46) [$ns node]                  
+$node(46) set X_ 750
+$node(46) set Y_ 700
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 23 \
+
+set node(47) [$ns node]                  
+$node(47) set X_ 700
+$node(47) set Y_ 400
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 82 \
+
+set node(48) [$ns node]                  
+$node(48) set X_ 400
+$node(48) set Y_ 678
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 45 \
+
+set node(49) [$ns node]                  
+$node(49) set X_ 750
+$node(49) set Y_ 750
+
+
+
+#Generation of mobile nodes 
+
+$ns at 5.0  "$node(0) setdest 150.0 250.0 15.0"
+$ns at 15.0 "$node(1) setdest 50.0 240.0 3.0"
+$ns at 50.0 "$node(2) setdest 450.0 300.0 28.0"
+$ns at 16.0 "$node(3) setdest 10.0 300.0 14.0"
+$ns at 13.0 "$node(4) setdest 1.0 1.0 4.0"
+$ns at 14.0 "$node(5) setdest 10.0 34.0 13.0"
+$ns at 13.0 "$node(6) setdest 25.0 100.0 6.0"
+$ns at 20.0 "$node(7) setdest 50.0 150.0 10.0"
+$ns at 21.0 "$node(8) setdest 60.0 200.0 8.0"
+$ns at 24.0 "$node(9) setdest 150.0 10.0 10.0"
+$ns at 34.0 "$node(10) setdest 250.0 10.0 10.0"
+$ns at 40.0 "$node(11) setdest 300.0 300.0 2.0"
+$ns at 37.0 "$node(12) setdest 10.0 340.0 3.0"
+$ns at 47.0 "$node(13) setdest 100.0 340.0 5.0"
+$ns at 17.0 "$node(14) setdest 10.0 240.0 10.0"
+$ns at 13.0 "$node(15) setdest 10.0 140.0 3.0"
+$ns at 15.0 "$node(16) setdest 600.0 200.0 5.0"
+$ns at 7.0 "$node(17) setdest 600.0 34.0 30.0"
+$ns at 1.0 "$node(18) setdest 700.0 14.0 12.0"
+$ns at 6.0 "$node(19) setdest 400.0 25.0 6.0"
+$ns at 7.0 "$node(20) setdest 500.0 500.0 8.0"
+$ns at 8.0 "$node(21) setdest 300.0 400.0 3.0"
+$ns at 18.0 "$node(22) setdest 300.0 30.0 11.0"
+$ns at 5.0 "$node(23) setdest 150.0 150.0 1.0"
+$ns at 3.0 "$node(24) setdest 8.0 80.0 21.0"
+$ns at 2.0 "$node(25) setdest 10.0 450.0 20.0"
+$ns at 1.0 "$node(26) setdest 180.0 240.0 25.0"
+$ns at 9.0 "$node(27) setdest 10.0 400.0 14.0"
+$ns at 8.0 "$node(28) setdest 250.0 440.0 23.0"
+$ns at 6.0 "$node(29) setdest 50.0 3.0 15.0"
+$ns at 10.0 "$node(30) setdest 10.0 300.0 15.0"
+$ns at 16.0 "$node(31) setdest 550.0 10.0 1.0"
+$ns at 6.0 "$node(32) setdest 250.0 3.0 5.0"
+$ns at 23.0 "$node(33) setdest 50.0 60.0 8.0"
+$ns at 30.0 "$node(34) setdest 100.0 3.0 25.0"
+$ns at 44.0 "$node(35) setdest 10.0 19.0 10.0"
+$ns at 8.0 "$node(36) setdest 50.0 35.0 1.0"
+$ns at 18.0 "$node(37) setdest 50.0 3.0 6.0"
+$ns at 49.0 "$node(38) setdest 10.0 120.0 20.0"
+$ns at 6.0 "$node(39) setdest 50.0 12.0 15.0"
+$ns at 9.0 "$node(40) setdest 300.0 3.0 7.0"
+$ns at 20.0 "$node(41) setdest 200.0 40.0 5.0"
+$ns at 9.0 "$node(42) setdest 50.0 10.0 25.0"
+$ns at 60.0 "$node(43) setdest 500.0 500.0 2.0"
+$ns at 17.0 "$node(44) setdest 100.0 90.0 14.0"
+$ns at 26.0 "$node(45) setdest 50.0 3.0 5.0"
+$ns at 22.0 "$node(46) setdest 350.0 400.0 10.0"
+$ns at 29.0 "$node(47) setdest 500.0 9.0 3.0"
+$ns at 3.0 "$node(48) setdest 250.0 140.0 15.0"
+$ns at 6.0 "$node(49) setdest 10.0 300.0 19.0"
+
+
+for {set i 0} {$i < $val(nn)} {incr i} {
+      $node($i) color black
+      $ns at 0.0 "$node($i) color black"
+      }
+
+## Define node initial position in nam..
+      for {set i 0} {$i < $val(nn)} { incr i } {
+      # 30 defines the node size for nam..
+            $ns initial_node_pos $node($i) 30
+      }
+
+#Set a TCP connection between node 17 and node 4
+
+set tcp1 [new Agent/TCP/Newreno]
+$tcp1 set class_ 1
+set sink1 [new Agent/TCPSink]
+$ns attach-agent $node(17) $tcp1
+$ns attach-agent $node(4) $sink1
+$ns connect $tcp1 $sink1
+set ftp1 [new Application/FTP]
+$ftp1 attach-agent $tcp1
+$ns at 5.0 "$ftp1 start"
+$tcp1 set fid_ 2
+$ns at 5.0 " $node(17) color tan" 
+$ns at 5.0 " $node(4) color tan" 
+
+
+
+
+#set a tcp connection between node 42 and node 44
+set tcp2 [new Agent/TCP/Newreno]
+$tcp2 set class_ 1
+set sink11 [new Agent/TCPSink]
+$ns attach-agent $node(42) $tcp2
+$ns attach-agent $node(44) $sink11
+$ns connect $tcp2 $sink11
+set ftp2 [new Application/FTP]
+$ftp2 attach-agent $tcp2
+$ns at 2.0 "$ftp2 start"
+$tcp2 set fid_ 2
+$ns at 2.0 " $node(42) color brown" 
+$ns at 2.0 " $node(44) color brown" 
+
+
+
+#set a tcp connection between node 3 and node 32
+set tcp3 [new Agent/TCP/Newreno]
+$tcp3 set class_ 1
+set sink12 [new Agent/TCPSink]
+$ns attach-agent $node(3) $tcp3
+$ns attach-agent $node(32) $sink12
+$ns connect $tcp3 $sink12
+set ftp3 [new Application/FTP]
+$ftp3 attach-agent $tcp3
+$ns at 4.0 "$ftp3 start"
+$tcp3 set fid_ 2
+$ns at 4.0 " $node(3) color gold" 
+$ns at 4.0 " $node(32) color gold" 
+
+
+
+#set a tcp connection between node 9 and node 36
+set tcp4 [new Agent/TCP/Newreno]
+$tcp4 set class_ 1
+set sink13 [new Agent/TCPSink]
+$ns attach-agent $node(9) $tcp4
+$ns attach-agent $node(36) $sink13
+$ns connect $tcp4 $sink13
+set ftp4 [new Application/FTP]
+$ftp4 attach-agent $tcp4
+$ns at 1.0 "$ftp4 start"
+$tcp4 set fid_ 2
+$ns at 1.0 " $node(9) color gold" 
+$ns at 1.0 " $node(36) color gold" 
+
+
+
+#set a tcp connection between node 39 and node 14
+set tcp5 [new Agent/TCP/Newreno]
+$tcp5 set class_ 1
+set sink14 [new Agent/TCPSink]
+$ns attach-agent $node(39) $tcp5
+$ns attach-agent $node(14) $sink14
+$ns connect $tcp5 $sink14
+set ftp5 [new Application/FTP]
+$ftp5 attach-agent $tcp5
+$ns at 4.0 "$ftp5 start"
+$tcp5 set fid_ 2
+$ns at 4.0 " $node(39) color red" 
+$ns at 4.0 " $node(14) color red" 
+###############
+
+#set a udp connection between node 10 and node 18
+set udp1 [new Agent/UDP]
+
+$ns attach-agent $node(18) $udp1
+
+set sink4 [new Agent/LossMonitor]
+
+$ns attach-agent $node(10) $sink4
+$ns connect $udp1 $sink4
+
+
+$ns at 2.0 " $node(10) color Green" 
+$ns at 2.0 " $node(18) color Green" 
+
+
+#set a udp connection between node 41 and node 3
+set udp2 [new Agent/UDP]
+
+$ns attach-agent $node(41) $udp2
+
+set sink5 [new Agent/LossMonitor]
+
+$ns attach-agent $node(3) $sink5
+$ns connect $udp2 $sink5
+
+$ns at 3.0 " $node(3) color brown" 
+$ns at 3.0 " $node(41) color brown" 
+
+#set a udp connection between node 33 and node 37
+set udp3 [new Agent/UDP]
+
+$ns attach-agent $node(33) $udp3
+
+set sink8 [new Agent/LossMonitor]
+
+$ns attach-agent $node(37) $sink8
+$ns connect $udp3 $sink8
+
+$ns at 5.0 " $node(33) color red" 
+$ns at 5.0 " $node(37) color red" 
+
+
+
+#set a udp connection between node 28 and node 30
+set udp4 [new Agent/UDP]
+
+$ns attach-agent $node(28) $udp4
+
+set sink9 [new Agent/LossMonitor]
+
+$ns attach-agent $node(30) $sink9
+$ns connect $udp4 $sink9
+
+$ns at 1.0 " $node(28) color blue" 
+$ns at 1.0 " $node(30) color blue" 
+
+
+
+#set a udp connection between node 1 and node 16
+set udp5 [new Agent/UDP]
+
+$ns attach-agent $node(1) $udp5
+
+set sink15 [new Agent/LossMonitor]
+
+$ns attach-agent $node(16) $sink15
+$ns connect $udp5 $sink15
+
+$ns at 2.0 " $node(16) color brown" 
+$ns at 2.0 " $node(1) color brown" 
+
+
+proc attach-CBR-traffic { node sink size interval } {
+   #Get an instance of the simulator
+   set ns [Simulator instance]
+   #Create a CBR  agent and attach it to the node
+   set cbr [new Agent/CBR]
+   $ns attach-agent $node $cbr
+   $cbr set packetSize_ $size
+   $cbr set interval_ $interval
+
+   #Attach CBR source to sink;
+   $ns connect $cbr $sink
+   return $cbr
+  }
+
+set cbr1 [attach-CBR-traffic $node(18) $sink4 1000 .45]
+$ns at 2.0 "$cbr1 start"
+set cbr2 [attach-CBR-traffic $node(41) $sink5 1000 .35]
+$ns at 3.0 "$cbr2 start"
+set cbr3 [attach-CBR-traffic $node(33) $sink8 512 .4]
+$ns at 5.0 "$cbr3 start"
+set cbr4 [attach-CBR-traffic $node(47) $sink9 512 .2]
+$ns at 1.0 "$cbr4 start"
+set cbr5 [attach-CBR-traffic $node(45) $sink15 512 .6]
+$ns at 2.0 "$cbr5 start"
+
+
+proc record {} {
+  global  sink4 sink5 sink8 sink9 sink15 
+   #Get An Instance Of The Simulator
+   set ns [Simulator instance]
+   
+   #Set The Time After Which The Procedure Should Be Called Again
+   set time 0.05
+   #How Many Bytes Have Been Received By The Traffic Sinks?
+   set bw0 [$sink4 set npkts_]
+   set bw1 [$sink4 set nlost_]  
+   set bw2 [expr $bw0+ $bw1]
+   set bw3 [$sink5 set npkts_]
+   set bw4 [$sink5 set nlost_]  
+   set bw5 [expr $bw3+ $bw4]
+   
+ set bw6 [$sink8 set npkts_]
+   set bw7 [$sink8 set nlost_]  
+   set bw8 [expr $bw6+ $bw7]
+  
+ set bw9 [$sink9 set npkts_]
+   set bw10 [$sink9 set nlost_]  
+   set bw11 [expr $bw9+ $bw10]
+  
+ set bw12 [$sink15 set npkts_]
+   set bw13 [$sink15 set nlost_]  
+   set bw14 [expr $bw12+ $bw13]
+  
+ 
+  
+   #Get The Current Time
+   set now [$ns now]
+   
+    #Re-Schedule The Procedure
+   $ns at [expr $now+$time] "record"
+  }
+
+
+# printing the window size 
+proc plotWindow {tcpSource file} {
+global ns
+set time 0.01
+set now [$ns now]
+
+set cwnd [$tcpSource set cwnd_]
+puts $file "$now $cwnd"
+$ns at [expr $now+$time] "plotWindow $tcpSource $file" }
+
+
+#Telling nodes when the simulation ends
+for {set i 0} {$i < $val(nn)} { incr i } {
+	$ns at $val(stop) "$node($i) reset" ;
+}
+
+
+###Vampire Attack##########
+
+set ON 1
+set OFF 0
+
+# enable debugging by default
+#set verbose ON
+
+set dos 10
+
+
+set total_host 200000
+
+set probing_port [Application/Worm set ScanPort]
+# probing packet size
+# slammer Worm UDP packets of 404 Bytes
+set p_size 404
+Application/Worm set ScanPacketSize $p_size
+Agent/MessagePassing set packetSize_ $p_size
+
+#	Application/Worm set ScanRate 1
+
+# 1.config the Normal network
+for {set i 0} {$i < 10} {incr i} {
+    set a($i) [new Agent/MessagePassing]
+    $node($i) attach $a($i) $probing_port
+    set w($i) [new Application/Worm/Dnh]
+    $w($i) attach-agent $a($i)
+    $w($i) addr-range 0 [expr $val(nn)- 2]
+    
+}
+
+
+# 2. set up Attacker node
+set a(10) [new Agent/MessagePassing]
+$node(10) attach $a(10) $probing_port
+set w(10) [new Application/Worm/An]
+$w(10) attach-agent $a(10)
+$w(10) addr-range 10 $total_host
+$w(10) dn-range 0 10
+$w(10) v_percent 0.2
+$w(10) gamma 0.0
+$w(10) beta 0.2
+
+
+# recv all packets coming in
+set p [$node(10) set dmux_]
+$p defaulttarget $a(10) 
+
+#[$node($an_id) entry] defaulttarget $p
+
+# now starts infection
+$ns at 80.0 "$w(10) start"
+$ns at 85.0 "$w(10) stop"
+
+####END Wamipre Attack#######
+
+#Telling nodes when the simulation ends
+for {set i 0} {$i < $val(nn)} { incr i } {
+	$ns at $val(stop) "$node($i) reset" ;
+}
+
+#start ftp transmission
+$ns at 5.0 "$node(17) label \"FTP\""
+$ns at 5.0 "$node(4) label \"FTP\""
+$ns at 5.0 "$node(42) label \"FTP\""
+$ns at 1.0 "$node(44) label \"FTP\""
+$ns at 4.0 "$node(32) label \"FTP\""
+$ns at 4.0 "$node(3) label \"FTP\""
+$ns at 2.0 "$node(9) label \"FTP\""
+$ns at 4.0 "$node(36) label \"FTP\""
+$ns at 1.0 "$node(39) label \"FTP\""
+$ns at 4.0 "$node(14) label \"FTP\""
+$ns at 2.0 "$node(10) label \"CBR\""
+$ns at 2.0 "$node(18) label \"CBR\""
+$ns at 3.0 "$node(41) label \"CBR\""
+$ns at 3.0 "$node(3) label \"CBR\""
+$ns at 3.0 "$node(39) label \"CBR\""
+$ns at 4.0 "$node(14) label \"CBR\""
+$ns at 3.0 "$node(1) label \"CBR\""
+$ns at 1.0 "$node(16) label \"CBR\""
+$ns at 0.1 "$node(21) label \"Preventor\""
+
+#Node Movment with Trace Information 
+$ns at 1.0 "$ns trace-annotate \"Node's Move\""
+$ns at 5.0 "$ns trace-annotate \"TCP Over FTP Packet TX. Start From 17 TO 4 \""
+$ns at 4.0 "$ns trace-annotate \"TCP Over FTP Packet TX. Start From 42 TO 44 \""
+$ns at 5.0 "$ns trace-annotate \"TCP Over FTP Packet TX. Start From 3 TO 32 \""
+$ns at 4.0 "$ns trace-annotate \"TCP Over FTP Packet TX. Start From 9 TO 36 \""
+$ns at 1.0 "$ns trace-annotate \"TCP Over FTP Packet TX. Start From 39 TO 14 \""
+$ns at 2.0 "$ns trace-annotate \"UDP Over CBR Packet TX. Start From 10 TO 18 \""
+$ns at 3.0 "$ns trace-annotate \"UDP Over CBR Packet TX. Start From 41 TO 3 \""
+$ns at 3.0 "$ns trace-annotate \"UDP Over CBR Packet TX. Start From 33 TO 37 \""
+$ns at 2.0 "$ns trace-annotate \"UDP Over CBR Packet TX. Start From 28 TO 30 \""
+$ns at 3.0 "$ns trace-annotate \"UDP Over CBR Packet TX. Start From 1 TO 16 \""
+
+
+#ending nam and the simualtion 
+$ns at $val(stop) "$ns nam-end-wireless $val(stop)"
+$ns at $val(stop) "stop"
+$ns at 100.01 "puts \"end simulation\" ; $ns halt"
+
+proc stop {} {
+
+	global ns tracefd namtrcae
+	$ns flush-trace
+	close $tracefd
+	exit 0
+}
+
+
+$ns at 0.0 "record"
+
+$ns run
+
+
+        
+# A 50-node example for ad-hoc simulation with aodv
+
+# Define options
+set val(chan)     	Channel/WirelessChannel  	;# channel type
+set val(prop)		Propagation/TwoRayGround	;# radio-propagation model
+set val(netif)		Phy/WirelessPhy			;# network interface type
+set val(mac)		Mac/802_11		;#MAC type
+set val(ifq)		Queue/DropTail/PriQueue		;# interface queue type
+set val(ll)		LL				;# link layer type
+set val(ant)		Antenna/OmniAntenna		;# antenna model
+set val(ifqlen)		10				;# max packet in ifq
+set val(nn)		100				;# number of mobilenodes
+set val(rp)		AODV				;# routing protocol
+set val(x)		1000				;# X dimension of topography
+set val(y)		1000				;#  dimension of topography
+set val(stop)		100				;# time of simulation end
+
+
+set ns [new Simulator]
+
+$ns use-newtrace
+set tracefd	[open 100.tr w]
+
+
+set namtrace	[open 100.nam w]
+$ns namtrace-all-wireless $namtrace $val(x) $val(y)
+$ns trace-all $tracefd
+
+
+# define color index
+$ns color 0 blue
+$ns color 1 red
+$ns color 2 chocolate
+$ns color 4 brown
+$ns color 5 tan
+$ns color 6 gold
+$ns color 7 black               
+
+#set up topography object
+
+set topo [new Topography]
+
+# define topology
+$topo load_flatgrid $val(x) $val(y)
+
+
+# ======================================================================
+# set up the antennas to be centered in the node and 2.5 meters above it
+Antenna/OmniAntenna set X_ 0
+Antenna/OmniAntenna set Y_ 0
+Antenna/OmniAntenna set Z_ 1.5
+Antenna/OmniAntenna set Gt_ 1.0
+Antenna/OmniAntenna set Gr_ 1.0
+# Initialize the SharedMedia interface with parameters to make
+# it work like the 914MHz Lucent WaveLAN DSSS radio interface
+Phy/WirelessPhy set CPThresh_ 10.0	;# receive power threshold
+Phy/WirelessPhy set CSThresh_ 1.559e-11	;# -108.07154db carrier sense thresh
+Phy/WirelessPhy set RXThresh_ 1.652e-10 
+Phy/WirelessPhy set Rb_ 2*1e6
+Phy/WirelessPhy set Pt_ 0.2828      	;# For 250m  transmission range.
+Phy/WirelessPhy set freq_ 914e+6 	;# frequency
+Phy/WirelessPhy set L  1.0		;# system loss factor
+Phy/WirelessPhy set Pt_consume_ 0.660  	;# 1.6 W drained power for tx
+Phy/WirelessPhy set Pr_consume_ 0.395 	;# 1.2 W drained power for reception
+Phy/WirelessPhy set P_idle_ 0.035		;# 1.15 W drained power for idle
+set b 10Mb
+set UR blackhole
+#=================================================================================
+
+
+create-god $val(nn)		
+
+#Create nn mobilenodes [$val(nn)] and attach them to the channel.
+
+set chan_1 [new $val(chan)]
+set chan_2 [new $val(chan)]
+
+#cofigure the nodes
+
+$ns node-config  -adhocRouting $val(rp) \
+		-llType $val(ll) \
+		-macType $val(mac)  \
+		-ifqType $val(ifq)  \
+		-ifqLen $val(ifqlen) \
+		-antType $val(ant) \
+		-propType $val(prop) \
+		-phyType $val(netif) \
+		-channelType $val(chan) \
+		-topoInstance $topo \
+		-agentTrace ON \
+		-routerTrace ON \
+		-macTrace OFF \
+		-movemenTrace ON 
+
+
+
+
+
+#next-hop information
+$ns compute-routes     
+
+Mac/802_11 set basicRate_ $b
+Mac/802_11 set dataRate_ $b 
+
+$ns node-config  -energyModel EnergyModel \
+ 	 -initialEnergy 92 \
+  	-txPower 1.5 \
+        -rxPower 1.0 \
+        -idlePower 0.0 \
+        -sensePower 0.5 \
+	-sleep 	0.5  
+
+set node(0) [$ns node]  
+set xx(0) 10
+set yy(0) 10
+$node(0) set X_ $xx(0)
+$node(0) set Y_ $yy(0)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 89 \
+
+set node(1) [$ns node] 
+set xx(1) 5
+set yy(1) 100 
+$node(1) set X_ $xx(1)
+$node(1) set Y_ $yy(1)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 81 \
+
+set node(2) [$ns node] 
+set xx(2) 410
+set yy(2) 400 
+$node(2) set X_ $xx(2)
+$node(2) set Y_ $yy(2)
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 72 \
+
+set node(3) [$ns node] 
+set xx(3) 60
+set yy(3) 200 
+$node(3) set X_ $xx(3)
+$node(3) set Y_ $yy(3)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 64 \
+
+set node(4) [$ns node] 
+set xx(4) 600
+set yy(4) 350 
+$node(4) set X_ $xx(4)
+$node(4) set Y_ $yy(4)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+
+set node(5) [$ns node] 
+set xx(5) 350
+set yy(5) 410 
+$node(5) set X_ $xx(5)
+$node(5) set Y_ $yy(5)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 85 \
+
+set node(6) [$ns node] 
+set xx(6) 340
+set yy(6) 750 
+$node(6) set X_ $xx(6)
+$node(6) set Y_ $yy(6)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 78 \
+
+set node(7) [$ns node] 
+set xx(7) 600
+set yy(7) 700 
+$node(7) set X_ $xx(7)
+$node(7) set Y_ $yy(7)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 94 \
+
+set node(8) [$ns node] 
+set xx(8) 400
+set yy(8) 100 
+$node(8) set X_ $xx(8)
+$node(8) set Y_ $yy(8)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 70 \
+
+set node(9) [$ns node] 
+set xx(9) 500
+set yy(9) 610 
+$node(9) set X_ $xx(9)
+$node(9) set Y_ $yy(9)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 89 \
+
+set node(10) [$ns node] 
+set xx(10) 700
+set yy(10) 20 
+$node(10) set X_ $xx(10)
+$node(10) set Y_ $yy(10)
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 87 \
+
+set node(11) [$ns node] 
+set xx(11) 500
+set yy(11) 600 
+$node(11) set X_ $xx(11)
+$node(11) set Y_ $yy(11)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 65 \
+
+set node(12) [$ns node] 
+set xx(12) 50
+set yy(12) 20 
+$node(12) set X_ $xx(12)
+$node(12) set Y_ $yy(12)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 88 \
+
+set node(13) [$ns node] 
+set xx(13) 55
+set yy(13) 100 
+$node(13) set X_ $xx(13)
+$node(13) set Y_ $yy(13)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 77 \
+
+set node(14) [$ns node] 
+set xx(14) 350
+set yy(14) 210 
+$node(14) set X_ $xx(14)
+$node(14) set Y_ $yy(14)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 90 \
+
+set node(15) [$ns node] 
+set xx(15) 100
+set yy(15) 200 
+$node(15) set X_ $xx(15)
+$node(15) set Y_ $yy(15)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 78 \
+
+set node(16) [$ns node] 
+set xx(16) 600
+set yy(16) 800 
+$node(16) set X_ $xx(16)
+$node(16) set Y_ $yy(16)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 65 \
+
+set node(17) [$ns node] 
+set xx(17) 650
+set yy(17) 400 
+$node(17) set X_ $xx(17)
+$node(17) set Y_ $yy(17)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 86 \
+
+set node(18) [$ns node] 
+set xx(18) 200
+set yy(18) 200 
+$node(18) set X_ $xx(18)
+$node(18) set Y_ $yy(18)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 70 \
+
+set node(19) [$ns node] 
+set xx(19) 390
+set yy(19) 250 
+$node(19) set X_ $xx(19)
+$node(19) set Y_ $yy(19)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 84 \
+
+set node(20) [$ns node] 
+set xx(20) 400
+set yy(20) 500 
+$node(20) set X_ $xx(20)
+$node(20) set Y_ $yy(20)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 77 \
+
+set node(21) [$ns node] 
+set xx(21) 20
+set yy(21) 200 
+$node(21) set X_ $xx(21)
+$node(21) set Y_ $yy(21)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 96 \
+
+set node(22) [$ns node] 
+set xx(22) 10
+set yy(22) 400 
+$node(22) set X_ $xx(22)
+$node(22) set Y_ $yy(22)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 93 \  
+ 
+set node(23) [$ns node] 
+set xx(23) 500
+set yy(23) 510 
+$node(23) set X_ $xx(23)
+$node(23) set Y_ $yy(23)
+ 
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 100 \
+
+
+
+set node(24) [$ns node] 
+set xx(24) 600
+set yy(24) 600 
+$node(24) set X_ $xx(24)
+$node(24) set Y_ $yy(24)
+
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 50 \
+
+
+
+set node(25) [$ns node] 
+set xx(25) 300
+set yy(25) 760 
+$node(25) set X_ $xx(25)
+$node(25) set Y_ $yy(25)
+
+
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+
+
+set node(26) [$ns node] 
+set xx(26) 750
+set yy(26) 130 
+$node(26) set X_ $xx(26)
+$node(26) set Y_ $yy(26)
+
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 87 \
+
+
+
+set node(27) [$ns node] 
+set xx(27) 770
+set yy(27) 770 
+$node(27) set X_ $xx(27)
+$node(27) set Y_ $yy(27)
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 65 \
+
+
+
+set node(28) [$ns node] 
+set xx(28) 320
+set yy(28) 450 
+$node(28) set X_ $xx(28)
+$node(28) set Y_ $yy(28)
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 91 \
+
+
+
+set node(29) [$ns node] 
+set xx(29) 700
+set yy(29) 700 
+$node(29) set X_ $xx(29)
+$node(29) set Y_ $yy(29)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 98 \
+
+set node(30) [$ns node] 
+set xx(30) 800
+set yy(30) 780 
+$node(30) set X_ $xx(30)
+$node(30) set Y_ $yy(30)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 87 \
+
+set node(31) [$ns node] 
+set xx(31) 150
+set yy(31) 250
+$node(31) set X_ $xx(31)
+$node(31) set Y_ $yy(31)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 54 \
+
+set node(32) [$ns node] 
+set xx(32) 300
+set yy(32) 300
+$node(32) set X_ $xx(32)
+$node(32) set Y_ $yy(32)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 87 \
+
+set node(33) [$ns node] 
+set xx(33) 150
+set yy(33) 60
+$node(33) set X_ $xx(33)
+$node(33) set Y_ $yy(33)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 77 \
+
+set node(34) [$ns node] 
+set xx(34) 100
+set yy(34) 400
+$node(34) set X_ $xx(34)
+$node(34) set Y_ $yy(34)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 89 \
+
+set node(35) [$ns node] 
+set xx(35) 40
+set yy(35) 200
+$node(35) set X_ $xx(35)
+$node(35) set Y_ $yy(35)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 97 \
+
+set node(36) [$ns node] 
+set xx(36) 800
+set yy(36) 900
+$node(36) set X_ $xx(36)
+$node(36) set Y_ $yy(36)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 95 \
+
+set node(37) [$ns node] 
+set xx(37) 350
+set yy(37) 70
+$node(37) set X_ $xx(37)
+$node(37) set Y_ $yy(37)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 52 \
+
+set node(38) [$ns node] 
+set xx(38) 270
+set yy(38) 100
+$node(38) set X_ $xx(38)
+$node(38) set Y_ $yy(38)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 54 \
+
+set node(39) [$ns node] 
+set xx(39) 80
+set yy(39) 70
+$node(39) set X_ $xx(39)
+$node(39) set Y_ $yy(39)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 63 \
+
+set node(40) [$ns node] 
+set xx(40) 850
+set yy(40) 730
+$node(40) set X_ $xx(40)
+$node(40) set Y_ $yy(40)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 65 \
+
+set node(41) [$ns node] 
+set xx(41) 657
+set yy(41) 50
+$node(41) set X_ $xx(41)
+$node(41) set Y_ $yy(41)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 75 \
+
+set node(42) [$ns node] 
+set xx(42) 100
+set yy(42) 50
+$node(42) set X_ $xx(42)
+$node(42) set Y_ $yy(42)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 88 \
+
+set node(43) [$ns node] 
+set xx(43) 800
+set yy(43) 400
+$node(43) set X_ $xx(43)
+$node(43) set Y_ $yy(43)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 66 \
+
+set node(44) [$ns node] 
+set xx(44) 350
+set yy(44) 150
+$node(44) set X_ $xx(44)
+$node(44) set Y_ $yy(44)
+
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(45) [$ns node] 
+
+set xx(45) 680
+set yy(45) 480
+$node(45) set X_ $xx(45)
+$node(45) set Y_ $yy(45)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(46) [$ns node] 
+set xx(46) 350
+set yy(46) 600
+$node(46) set X_ $xx(46)
+$node(46) set Y_ $yy(46)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 89 \
+
+set node(47) [$ns node] 
+set xx(47) 700
+set yy(47) 799
+$node(47) set X_ $xx(47)
+$node(47) set Y_ $yy(47)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 88 \
+
+set node(48) [$ns node] 
+set xx(48) 300
+set yy(48) 100
+$node(48) set X_ $xx(48)
+$node(48) set Y_ $yy(48)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 98 \
+
+set node(49) [$ns node] 
+set xx(49) 650
+set yy(49) 500
+$node(49) set X_ $xx(49)
+$node(49) set Y_ $yy(49)
+
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 30 \
+
+set node(50) [$ns node] 
+set xx(50) 200
+set yy(50) 342 
+$node(50) set X_ $xx(50)
+$node(50) set Y_ $yy(50)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 89 \
+
+set node(51) [$ns node] 
+set xx(51) 342
+set yy(51) 768 
+$node(51) set X_ $xx(51)
+$node(51) set Y_ $yy(51)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 34 \
+
+set node(52) [$ns node] 
+set xx(52) 324
+set yy(52) 2
+$node(52) set X_ $xx(52)
+$node(52) set Y_ $yy(52)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 90 \
+
+set node(53) [$ns node] 
+set xx(53) 875
+set yy(53) 564 
+$node(53) set X_ $xx(53)
+$node(53) set Y_ $yy(53)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 47 \
+
+set node(54) [$ns node] 
+set xx(54) 675
+set yy(54) 453 
+$node(54) set X_ $xx(54)
+$node(54) set Y_ $yy(54)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 39 \
+
+set node(55) [$ns node] 
+set xx(55) 29
+set yy(55) 21 
+$node(55) set X_ $xx(55)
+$node(55) set Y_ $yy(55)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 22 \
+
+set node(56) [$ns node] 
+set xx(56) 399
+set yy(56) 990
+$node(56) set X_ $xx(56)
+$node(56) set Y_ $yy(56)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 54 \
+
+set node(57) [$ns node] 
+set xx(57) 900
+set yy(57) 999 
+$node(57) set X_ $xx(57)
+$node(57) set Y_ $yy(57)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 35 \
+
+set node(58) [$ns node] 
+set xx(58) 484
+set yy(58) 400 
+$node(58) set X_ $xx(58)
+$node(58) set Y_ $yy(58)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 87 \
+
+set node(59) [$ns node] 
+set xx(59) 864
+set yy(59) 554 
+$node(59) set X_ $xx(59)
+$node(59) set Y_ $yy(59)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 45 \
+
+set node(60) [$ns node] 
+set xx(60) 41
+set yy(60) 400 
+$node(60) set X_ $xx(60)
+$node(60) set Y_ $yy(60)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 32 \
+
+set node(61) [$ns node] 
+set xx(61) 75
+set yy(61) 988 
+$node(61) set X_ $xx(61)
+$node(61) set Y_ $yy(61)
+
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 38 \
+
+set node(62) [$ns node] 
+
+set xx(62) 99
+set yy(62) 100 
+$node(62) set X_ $xx(62)
+$node(62) set Y_ $yy(62)
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 32 \
+
+set node(63) [$ns node] 
+set xx(63) 393
+set yy(63) 12 
+$node(63) set X_ $xx(63)
+$node(63) set Y_ $yy(63)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+set node(64) [$ns node] 
+set xx(64) 393
+set yy(64) 32
+$node(64) set X_ $xx(64)
+$node(64) set Y_ $yy(64)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+set node(65) [$ns node] 
+set xx(65) 453
+set yy(65) 756 
+$node(65) set X_ $xx(65)
+$node(65) set Y_ $yy(65)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 39 \
+
+set node(66) [$ns node] 
+set xx(66) 463
+set yy(66) 499 
+$node(66) set X_ $xx(66)
+$node(66) set Y_ $yy(66)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 78 \
+
+set node(67) [$ns node] 
+set xx(67) 932
+set yy(67) 563 
+$node(67) set X_ $xx(67)
+$node(67) set Y_ $yy(67)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 99 \
+
+set node(68) [$ns node] 
+set xx(68) 867
+set yy(68) 40 
+$node(68) set X_ $xx(68)
+$node(68) set Y_ $yy(68)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+set node(69) [$ns node] 
+set xx(69) 844
+set yy(69) 443 
+$node(69) set X_ $xx(69)
+$node(69) set Y_ $yy(69)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 49 \
+
+set node(70) [$ns node] 
+set xx(70) 564
+set yy(70) 444 
+$node(70) set X_ $xx(70)
+$node(70) set Y_ $yy(70)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 78 \
+
+set node(71) [$ns node] 
+set xx(71) 584
+set yy(71) 674 
+$node(71) set X_ $xx(71)
+$node(71) set Y_ $yy(71)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 68 \
+
+set node(72) [$ns node] 
+set xx(72) 574
+set yy(72) 685
+$node(72) set X_ $xx(72)
+$node(72) set Y_ $yy(72)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 48 \
+
+set node(73) [$ns node] 
+set xx(73) 68
+set yy(73) 40 
+$node(73) set X_ $xx(73)
+$node(73) set Y_ $yy(73)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+set node(74) [$ns node] 
+set xx(74) 68
+set yy(74) 955 
+$node(74) set X_ $xx(74)
+$node(74) set Y_ $yy(74)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+set node(75) [$ns node] 
+set xx(75) 500
+set yy(75) 500 
+$node(75) set X_ $xx(75)
+$node(75) set Y_ $yy(75)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 81 \
+
+set node(76) [$ns node] 
+set xx(76) 33
+set yy(76) 584 
+$node(76) set X_ $xx(76)
+$node(76) set Y_ $yy(76)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 57 \
+
+set node(77) [$ns node] 
+set xx(77) 755
+set yy(77) 786 
+$node(77) set X_ $xx(77)
+$node(77) set Y_ $yy(77)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 43 \
+
+set node(78) [$ns node] 
+set xx(78) 446
+set yy(78) 400 
+$node(78) set X_ $xx(78)
+$node(78) set Y_ $yy(78)
+
+
+$ns node-config -adhocRouting $UR
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 34 \
+
+set node(79) [$ns node] 
+$ns at 0.01 "$node(79) label \"U-to-R\""
+
+set xx(79) 555
+set yy(79) 877 
+$node(79) set X_ $xx(79)
+$node(79) set Y_ $yy(79)
+
+$ns node-config -adhocRouting AODV
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 56 \
+
+set node(80) [$ns node] 
+set xx(80) 879
+set yy(80) 67 
+$node(80) set X_ $xx(80)
+$node(80) set Y_ $yy(80)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 78 \
+
+set node(81) [$ns node] 
+set xx(81) 651
+set yy(81) 56 
+$node(81) set X_ $xx(81)
+$node(81) set Y_ $yy(81)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 78 \
+
+set node(82) [$ns node] 
+set xx(82) 765
+set yy(82) 342 
+$node(82) set X_ $xx(82)
+$node(82) set Y_ $yy(82)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(83) [$ns node] 
+set xx(83) 657
+set yy(83) 432 
+$node(83) set X_ $xx(83)
+$node(83) set Y_ $yy(83)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+set node(84) [$ns node] 
+set xx(84) 766
+set yy(84) 765 
+$node(84) set X_ $xx(84)
+$node(84) set Y_ $yy(84)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 44 \
+
+set node(85) [$ns node] 
+set xx(85) 654
+set yy(85) 544 
+$node(85) set X_ $xx(85)
+$node(85) set Y_ $yy(85)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 23 \
+
+set node(86) [$ns node] 
+set xx(86) 566
+set yy(86) 321 
+$node(86) set X_ $xx(86)
+$node(86) set Y_ $yy(86)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(87) [$ns node] 
+set xx(87) 677
+set yy(87) 566 
+$node(87) set X_ $xx(87)
+$node(87) set Y_ $yy(87)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 87 \
+
+set node(88) [$ns node] 
+set xx(88) 654
+set yy(88) 345 
+$node(88) set X_ $xx(88)
+$node(88) set Y_ $yy(88)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 78 \
+
+set node(89) [$ns node] 
+set xx(89) 432
+set yy(89) 345 
+$node(89) set X_ $xx(89)
+$node(89) set Y_ $yy(89)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+set node(90) [$ns node] 
+set xx(90) 788
+set yy(90) 876 
+$node(90) set X_ $xx(90)
+$node(90) set Y_ $yy(90)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 56 \
+
+set node(91) [$ns node] 
+set xx(91) 788
+set yy(91) 542 
+$node(91) set X_ $xx(91)
+$node(91) set Y_ $yy(91)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 56 \
+
+set node(92) [$ns node] 
+set xx(92) 765
+set yy(92) 765 
+$node(92) set X_ $xx(92)
+$node(92) set Y_ $yy(92)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 34 \
+
+set node(93) [$ns node] 
+set xx(93) 675
+set yy(93) 234 
+$node(93) set X_ $xx(93)
+$node(93) set Y_ $yy(93)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 54 \
+
+set node(94) [$ns node] 
+set xx(94) 453
+set yy(94) 675 
+$node(94) set X_ $xx(94)
+$node(94) set Y_ $yy(94)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 54 \
+
+set node(95) [$ns node] 
+set xx(95) 544
+set yy(95) 432 
+$node(95) set X_ $xx(95)
+$node(95) set Y_ $yy(95)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(96) [$ns node] 
+set xx(96) 455
+set yy(96) 234 
+$node(96) set X_ $xx(96)
+$node(96) set Y_ $yy(96)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(97) [$ns node] 
+set xx(97) 654
+set yy(97) 765 
+$node(97) set X_ $xx(97)
+$node(97) set Y_ $yy(97)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(98) [$ns node] 
+set xx(98) 654
+set yy(98) 654 
+$node(98) set X_ $xx(98)
+$node(98) set Y_ $yy(98)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 42 \
+
+set node(99) [$ns node] 
+set xx(99) 654
+set yy(99) 567 
+$node(99) set X_ $xx(99)
+$node(99) set Y_ $yy(99)
+
+
+#define node initial position in nam
+
+for {set i 0} {$i < $val(nn) } { incr i } {
+# 25 define the node size for nam
+$ns initial_node_pos $node($i) 35
+
+}
+
+#Generation of mobile nodes 
+
+$ns at 5.0  "$node(0) setdest 450.0 250.0 20.0"
+$ns at 1.0 "$node(1) setdest 150.0 240.0 20.0"
+$ns at 5.0 "$node(2) setdest 650.0 300.0 20.0"
+$ns at 6.0 "$node(3) setdest 799.0 600.0 20.0"
+$ns at 3.0 "$node(4) setdest 1.0 781.0 20.0"
+$ns at 4.0 "$node(5) setdest 210.0 34.0 20.0"
+$ns at 3.0 "$node(6) setdest 25.0 100.0 20.0"
+$ns at 2.0 "$node(7) setdest 50.0 150.0 20.0"
+$ns at 1.0 "$node(8) setdest 60.0 200.0 20.0"
+$ns at 2.0 "$node(9) setdest 150.0 10.0 20.0"
+$ns at 3.0 "$node(10) setdest 250.0 10.0 20.0"
+$ns at 4.0 "$node(11) setdest 300.0 300.0 20.0"
+$ns at 7.0 "$node(12) setdest 10.0 340.0 20.0"
+$ns at 7.0 "$node(13) setdest 100.0 340.0 20.0"
+$ns at 7.0 "$node(14) setdest 10.0 240.0 20.0"
+$ns at 3.0 "$node(15) setdest 10.0 740.0 20.0"
+$ns at 5.0 "$node(16) setdest 600.0 200.0 20.0"
+$ns at 7.0 "$node(17) setdest 600.0 34.0 20.0"
+$ns at 7.0 "$node(18) setdest 700.0 614.0 20.0"
+$ns at 2.0 "$node(19) setdest 400.0 325.0 20.0"
+$ns at 7.0 "$node(20) setdest 500.0 500.0 20.0"
+$ns at 8.0 "$node(21) setdest 30.0 780.0 20.0"
+$ns at 8.0 "$node(22) setdest 500.0 630.0 20.0"
+$ns at 5.0 "$node(23) setdest 150.0 750.0 20.0"
+$ns at 3.0 "$node(24) setdest 788.0 560.0 20.0"
+$ns at 2.0 "$node(25) setdest 10.0 450.0 20.0"
+$ns at 1.0 "$node(26) setdest 180.0 240.0 20.0"
+$ns at 9.0 "$node(27) setdest 10.0 400.0 20.0"
+$ns at 8.0 "$node(28) setdest 250.0 440.0 20.0"
+$ns at 6.0 "$node(29) setdest 50.0 3.0 20.0"
+$ns at 1.0 "$node(30) setdest 100.0 500.0 20.0"
+$ns at 6.0 "$node(31) setdest 550.0 310.0 20.0"
+$ns at 6.0 "$node(32) setdest 250.0 33.0 20.0"
+$ns at 3.0 "$node(33) setdest 50.0 603.0 20.0"
+$ns at 3.0 "$node(34) setdest 100.0 333.0 20.0"
+$ns at 4.0 "$node(35) setdest 10.0 193.0 20.0"
+$ns at 8.0 "$node(36) setdest 50.0 35.0 20.0"
+$ns at 8.0 "$node(37) setdest 50.0 3.0 20.0"
+$ns at 9.0 "$node(38) setdest 10.0 120.0 20.0"
+$ns at 6.0 "$node(39) setdest 50.0 12.0 20.0"
+$ns at 9.0 "$node(40) setdest 300.0 333.0 20.0"
+$ns at 2.0 "$node(41) setdest 300.0 450.0 20.0"
+$ns at 9.0 "$node(42) setdest 50.0 105.0 20.0"
+$ns at 6.0 "$node(43) setdest 500.0 500.0 20.0"
+$ns at 7.0 "$node(44) setdest 100.0 490.0 20.0"
+$ns at 6.0 "$node(45) setdest 50.0 355.0 20.0"
+$ns at 2.0 "$node(46) setdest 350.0 600.0 20.0"
+$ns at 9.0 "$node(47) setdest 500.0 679.0 20.0"
+$ns at 3.0 "$node(48) setdest 250.0 740.0 20.0"
+$ns at 6.0 "$node(49) setdest 10.0 700.0 20.0"
+$ns at 1.0  "$node(50) setdest 950.0 950.0 20.0"
+$ns at 2.0 "$node(51) setdest 780.0 670.0 20.0"
+$ns at 4.0 "$node(52) setdest 540.0 650.0 20.0"
+$ns at 5.0 "$node(53) setdest 549.0 430.0 20.0"
+$ns at 8.0 "$node(54) setdest 165.0 123.0 20.0"
+$ns at 4.0 "$node(55) setdest 123.0 435.0 20.0"
+$ns at 3.0 "$node(56) setdest 456.0 543.0 20.0"
+$ns at 2.0 "$node(57) setdest 324.0 543.0 20.0"
+$ns at 5.0 "$node(58) setdest 432.0 430.0 20.0"
+$ns at 2.0 "$node(59) setdest 123.0 324.0 20.0"
+$ns at 3.0 "$node(60) setdest 342.0 564.0 20.0"
+$ns at 4.0 "$node(61) setdest 654.0 50.0 20.0"
+$ns at 7.0 "$node(62) setdest 452.0 899.0 20.0"
+$ns at 3.0 "$node(63) setdest 700.0 740.0 20.0"
+$ns at 2.0 "$node(64) setdest 610.0 800.0 20.0"
+$ns at 1.0 "$node(65) setdest 810.0 940.0 20.0"
+$ns at 2.0 "$node(66) setdest 880.0 870.0 20.0"
+$ns at 7.0 "$node(67) setdest 760.0 434.0 20.0"
+$ns at 2.0 "$node(68) setdest 710.0 764.0 20.0"
+$ns at 2.0 "$node(69) setdest 670.0 685.0 20.0"
+$ns at 7.0 "$node(70) setdest 780.0 760.0 20.0"
+$ns at 2.0 "$node(71) setdest 130.0 880.0 20.0"
+$ns at 8.0 "$node(72) setdest 60.0 30.0 20.0"
+$ns at 9.0 "$node(73) setdest 900.0 150.0 20.0"
+$ns at 2.0 "$node(74) setdest 788.0 560.0 20.0"
+$ns at 2.0 "$node(75) setdest 110.0 350.0 20.0"
+$ns at 3.0 "$node(76) setdest 190.0 40.0 20.0"
+$ns at 2.0 "$node(77) setdest 510.0 540.0 20.0"
+$ns at 3.0 "$node(78) setdest 850.0 650.0 20.0"
+$ns at 7.0 "$node(79) setdest 250.0 103.0 20.0"
+$ns at 9.0 "$node(80) setdest 10.0 340.0 20.0"
+$ns at 2.0 "$node(81) setdest 120.0 450.0 20.0"
+$ns at 2.0 "$node(82) setdest 340.0 363.0 20.0"
+$ns at 4.0 "$node(83) setdest 240.0 403.0 20.0"
+$ns at 6.0 "$node(84) setdest 540.0 383.0 20.0"
+$ns at 7.0 "$node(85) setdest 105.0 183.0 20.0"
+$ns at 8.0 "$node(86) setdest 350.0 135.0 20.0"
+$ns at 3.0 "$node(87) setdest 250.0 103.0 20.0"
+$ns at 2.0 "$node(88) setdest 410.0 50.0 20.0"
+$ns at 4.0 "$node(89) setdest 430.0 212.0 20.0"
+$ns at 8.0 "$node(90) setdest 401.0 33.0 20.0"
+$ns at 3.0 "$node(91) setdest 231.0 321.0 20.0"
+$ns at 3.0 "$node(92) setdest 321.0 234.0 20.0"
+$ns at 7.0 "$node(93) setdest 325.0 345.0 20.0"
+$ns at 9.0 "$node(94) setdest 432.0 401.0 20.0"
+$ns at 7.0 "$node(95) setdest 204.0 155.0 20.0"
+$ns at 3.0 "$node(96) setdest 150.0 60.0 20.0"
+$ns at 1.0 "$node(97) setdest 450.0 279.0 20.0"
+$ns at 3.0 "$node(98) setdest 540.0 320.0 20.0"
+$ns at 4.0 "$node(99) setdest 310.0 450.0 20.0"
+
+
+#Set a TCP connection between node 83 and node 4
+
+set tcp1 [new Agent/TCP/Newreno]
+$tcp1 set class_ 1
+set sink12 [new Agent/TCPSink]
+$ns attach-agent $node(83) $tcp1
+$ns attach-agent $node(4) $sink12
+$ns connect $tcp1 $sink12
+set ftp1 [new Application/FTP]
+$ftp1 attach-agent $tcp1
+$ns at 1.0 "$ftp1 start"
+$tcp1 set fid_ 2
+
+
+
+
+#set a tcp connection between node 42 and node 44
+set tcp2 [new Agent/TCP/Newreno]
+$tcp2 set class_ 1
+set sink13 [new Agent/TCPSink]
+$ns attach-agent $node(42) $tcp2
+$ns attach-agent $node(44) $sink13
+$ns connect $tcp2 $sink13
+set ftp2 [new Application/FTP]
+$ftp2 attach-agent $tcp2
+$ns at 2.0 "$ftp2 start"
+$tcp2 set fid_ 2
+ 
+
+
+
+
+#set a udp connection between node 19 and node 9
+set udp1 [new Agent/UDP]
+
+$ns attach-agent $node(19) $udp1
+
+set sink1 [new Agent/LossMonitor]
+
+$ns attach-agent $node(9) $sink1
+$ns connect $udp1 $sink1
+
+#set a udp connection between node 10 and node 15
+set udp2 [new Agent/UDP]
+
+$ns attach-agent $node(10) $udp2
+
+set sink5 [new Agent/LossMonitor]
+
+$ns attach-agent $node(15) $sink5
+$ns connect $udp2 $sink5
+
+
+
+#set a udp connection between node 20 and node 27
+set udp3 [new Agent/UDP]
+
+$ns attach-agent $node(20) $udp3
+
+set sink2 [new Agent/LossMonitor]
+
+$ns attach-agent $node(27) $sink2
+$ns connect $udp3 $sink2
+
+
+#set a udp connection between node 31 and node 3
+set udp4 [new Agent/UDP]
+
+$ns attach-agent $node(31) $udp4
+
+set sink3 [new Agent/LossMonitor]
+
+$ns attach-agent $node(3) $sink3
+$ns connect $udp4 $sink3
+
+
+#set a udp connection between node 41 and node 17
+set udp5 [new Agent/UDP]
+
+$ns attach-agent $node(41) $udp5
+
+set sink4 [new Agent/LossMonitor]
+
+$ns attach-agent $node(17) $sink4
+$ns connect $udp5 $sink4
+
+
+#set a udp connection between node 67 and node 54
+set udp6 [new Agent/UDP]
+
+$ns attach-agent $node(67) $udp6
+
+set sink6 [new Agent/LossMonitor]
+
+$ns attach-agent $node(54) $sink6
+$ns connect $udp6 $sink6
+
+
+#set a udp connection between node 78 and node 89
+set udp7 [new Agent/UDP]
+
+$ns attach-agent $node(78) $udp7
+set sink7 [new Agent/LossMonitor]
+$ns attach-agent $node(89) $sink7
+$ns connect $udp7 $sink7
+
+#set a udp connection between node 76 and node 81
+set udp8 [new Agent/UDP]
+
+$ns attach-agent $node(76) $udp8
+set sink8 [new Agent/LossMonitor]
+$ns attach-agent $node(81) $sink8
+$ns connect $udp8 $sink8
+
+#set a udp connection between node 51 and node 87
+set udp9 [new Agent/UDP]
+
+$ns attach-agent $node(51) $udp9
+set sink9 [new Agent/LossMonitor]
+$ns attach-agent $node(87) $sink9
+$ns connect $udp9 $sink9
+
+
+#set a udp connection between node 77 and node 90
+set udp10 [new Agent/UDP]
+
+$ns attach-agent $node(77) $udp10
+set sink10 [new Agent/LossMonitor]
+$ns attach-agent $node(90) $sink10
+$ns connect $udp10 $sink10
+
+
+#set a udp connection between node 92 and node 99
+set udp11 [new Agent/UDP]
+
+$ns attach-agent $node(92) $udp11
+
+set sink11 [new Agent/LossMonitor]
+
+$ns attach-agent $node(99) $sink11
+$ns connect $udp11 $sink11
+
+proc attach-CBR-traffic { node sink size interval } {
+   #Get an instance of the simulator
+   set ns [Simulator instance]
+   #Create a CBR  agent and attach it to the node
+   set cbr [new Agent/CBR]
+   $ns attach-agent $node $cbr
+   $cbr set packetSize_ $size
+   $cbr set interval_ $interval
+
+   #Attach CBR source to sink;
+   $ns connect $cbr $sink
+   return $cbr
+  }
+
+set cbr1 [attach-CBR-traffic $node(19) $sink1 512 .15]
+$ns at 1.0 "$cbr1 start"
+set cbr2 [attach-CBR-traffic $node(10) $sink5 512 .15]
+$ns at 1.0 "$cbr2 start"
+set cbr3 [attach-CBR-traffic $node(20) $sink2 512 .15]
+$ns at 1.0 "$cbr3 start"
+set cbr4 [attach-CBR-traffic $node(31) $sink3 512 .15]
+$ns at 1.0 "$cbr4 start"
+set cbr5 [attach-CBR-traffic $node(41) $sink4 512 .15]
+$ns at 1.0 "$cbr5 start"
+set cbr6 [attach-CBR-traffic $node(67) $sink6 512 .15]
+$ns at 1.0 "$cbr6 start"
+set cbr7 [attach-CBR-traffic $node(78) $sink7 512 .15]
+$ns at 1.0 "$cbr7 start"
+set cbr8 [attach-CBR-traffic $node(76) $sink8 512 .15]
+$ns at 1.0 "$cbr8 start"
+set cbr9 [attach-CBR-traffic $node(51) $sink9 512 .15]
+$ns at 1.0 "$cbr9 start"
+set cbr10 [attach-CBR-traffic $node(77) $sink10 512 .15]
+$ns at 1.0 "$cbr10 start"
+set cbr11 [attach-CBR-traffic $node(92) $sink11 512 .15]
+$ns at 1.0 "$cbr11 start"
+
+
+# printing the window size 
+proc plotWindow {tcpSource file} {
+global ns
+set time 0.01
+set now [$ns now]
+
+set cwnd [$tcpSource set cwnd_]
+puts $file "$now $cwnd"
+$ns at [expr $now+$time] "plotWindow $tcpSource $file" }
+
+
+
+
+
+#Telling nodes when the simulation ends
+for {set i 0} {$i < $val(nn)} { incr i } {
+	$ns at $val(stop) "$node($i) reset" ;
+}
+
+###Vampire Attack##########
+
+set ON 1
+set OFF 0
+
+# enable debugging by default
+#set verbose ON
+
+set dos 38
+
+
+set total_host 200000
+
+set probing_port [Application/Worm set ScanPort]
+# probing packet size
+# slammer Worm UDP packets of 404 Bytes
+set p_size 404
+Application/Worm set ScanPacketSize $p_size
+Agent/MessagePassing set packetSize_ $p_size
+
+#	Application/Worm set ScanRate 1
+
+# 1.config the Normal network
+for {set i 0} {$i < 38} {incr i} {
+    set a($i) [new Agent/MessagePassing]
+    $node($i) attach $a($i) $probing_port
+    set w($i) [new Application/Worm/Dnh]
+    $w($i) attach-agent $a($i)
+    $w($i) addr-range 0 [expr $val(nn)- 2]
+    
+}
+
+
+# 2. set up Attacker node
+set a(38) [new Agent/MessagePassing]
+$node(38) attach $a(38) $probing_port
+set w(38) [new Application/Worm/An]
+$w(38) attach-agent $a(38)
+$w(38) addr-range 38 $total_host
+$w(38) dn-range 0 38
+$w(38) v_percent 0.15
+$w(38) gamma 0.0
+$w(38) beta 0.15
+
+
+# recv all packets coming in
+set p [$node(38) set dmux_]
+$p defaulttarget $a(38) 
+
+#[$node($an_id) entry] defaulttarget $p
+
+# now starts infection
+$ns at 90.0 "$w(38) start"
+$ns at 95.0 "$w(38) stop"
+
+####END vamipre Attack#######
+
+
+#ending nam and the simualtion 
+$ns at $val(stop) "$ns nam-end-wireless $val(stop)"
+$ns at $val(stop) "stop"
+$ns at 100.01 "puts \"end simulation\" ; $ns halt"
+
+proc stop {} {
+
+	global ns  tracefd namtrcae
+	$ns flush-trace
+	close $tracefd
+	exit 0
+}
+
+$ns run
+
+
+        
+# A 50-node example for ad-hoc simulation with aodv
+
+# Define options
+set val(chan)     	Channel/WirelessChannel  	;# channel type
+set val(prop)		Propagation/TwoRayGround	;# radio-propagation model
+set val(netif)		Phy/WirelessPhy			;# network interface type
+set val(mac)		Mac/802_11		;#MAC type
+set val(ifq)		Queue/DropTail/PriQueue		;# interface queue type
+set val(ll)		LL				;# link layer type
+set val(ant)		Antenna/OmniAntenna		;# antenna model
+set val(ifqlen)		10				;# max packet in ifq
+set val(nn)		150				;# number of mobilenodes
+set val(rp)		AODV				;# routing protocol
+set val(x)		1000				;# X dimension of topography
+set val(y)		1000				;#  dimension of topography
+set val(stop)		100				;# time of simulation end
+
+
+set ns [new Simulator]
+
+$ns use-newtrace
+set tracefd	[open 150.tr w]
+
+
+set namtrace	[open 150.nam w]
+$ns namtrace-all-wireless $namtrace $val(x) $val(y)
+$ns trace-all $tracefd
+
+
+# define color index
+$ns color 0 blue
+$ns color 1 red
+$ns color 2 chocolate
+$ns color 4 brown
+$ns color 5 tan
+$ns color 6 gold
+$ns color 7 black               
+
+#set up topography object
+
+set topo [new Topography]
+
+# define topology
+$topo load_flatgrid $val(x) $val(y)
+
+
+# ======================================================================
+# set up the antennas to be centered in the node and 2.5 meters above it
+Antenna/OmniAntenna set X_ 0
+Antenna/OmniAntenna set Y_ 0
+Antenna/OmniAntenna set Z_ 1.5
+Antenna/OmniAntenna set Gt_ 1.0
+Antenna/OmniAntenna set Gr_ 1.0
+# Initialize the SharedMedia interface with parameters to make
+# it work like the 914MHz Lucent WaveLAN DSSS radio interface
+Phy/WirelessPhy set CPThresh_ 10.0	;# receive power threshold
+Phy/WirelessPhy set CSThresh_ 1.559e-11	;# -108.07154db carrier sense thresh
+Phy/WirelessPhy set RXThresh_ 1.652e-10 
+Phy/WirelessPhy set Rb_ 2*1e6
+Phy/WirelessPhy set Pt_ 0.2828      	;# For 250m  transmission range.
+Phy/WirelessPhy set freq_ 914e+6 	;# frequency
+Phy/WirelessPhy set L  1.0		;# system loss factor
+Phy/WirelessPhy set Pt_consume_ 0.660  	;# 1.6 W drained power for tx
+Phy/WirelessPhy set Pr_consume_ 0.395 	;# 1.2 W drained power for reception
+Phy/WirelessPhy set P_idle_ 0.035		;# 1.15 W drained power for idle
+set b 20Mb
+set UR blackhole
+#=================================================================================
+
+
+create-god $val(nn)		
+
+#Create nn mobilenodes [$val(nn)] and attach them to the channel.
+
+set chan_1 [new $val(chan)]
+set chan_2 [new $val(chan)]
+
+#cofigure the nodes
+
+$ns node-config  -adhocRouting $val(rp) \
+		-llType $val(ll) \
+		-macType $val(mac)  \
+		-ifqType $val(ifq)  \
+		-ifqLen $val(ifqlen) \
+		-antType $val(ant) \
+		-propType $val(prop) \
+		-phyType $val(netif) \
+		-channelType $val(chan) \
+		-topoInstance $topo \
+		-agentTrace ON \
+		-routerTrace ON \
+		-macTrace OFF \
+		-movemenTrace ON 
+
+
+
+
+
+#next-hop information
+$ns compute-routes            
+
+Mac/802_11 set basicRate_ $b
+Mac/802_11 set dataRate_ $b 
+
+
+$ns node-config  -energyModel EnergyModel \
+ 	 -initialEnergy 92 \
+  	-txPower 1.5 \
+        -rxPower 1.0 \
+        -idlePower 0.0 \
+        -sensePower 0.5 \
+	-sleep 	0.5  
+
+
+set node(0) [$ns node]  
+set xx(0) 10
+set yy(0) 10
+$node(0) set X_ $xx(0)
+$node(0) set Y_ $yy(0)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 89 \
+
+set node(1) [$ns node] 
+set xx(1) 5
+set yy(1) 100 
+$node(1) set X_ $xx(1)
+$node(1) set Y_ $yy(1)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 81 \
+
+set node(2) [$ns node] 
+set xx(2) 410
+set yy(2) 400 
+$node(2) set X_ $xx(2)
+$node(2) set Y_ $yy(2)
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 72 \
+
+set node(3) [$ns node] 
+set xx(3) 60
+set yy(3) 200 
+$node(3) set X_ $xx(3)
+$node(3) set Y_ $yy(3)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 64 \
+
+set node(4) [$ns node] 
+set xx(4) 600
+set yy(4) 350 
+$node(4) set X_ $xx(4)
+$node(4) set Y_ $yy(4)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+
+set node(5) [$ns node] 
+set xx(5) 350
+set yy(5) 410 
+$node(5) set X_ $xx(5)
+$node(5) set Y_ $yy(5)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 85 \
+
+set node(6) [$ns node] 
+set xx(6) 340
+set yy(6) 750 
+$node(6) set X_ $xx(6)
+$node(6) set Y_ $yy(6)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 78 \
+
+set node(7) [$ns node] 
+set xx(7) 600
+set yy(7) 700 
+$node(7) set X_ $xx(7)
+$node(7) set Y_ $yy(7)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 94 \
+
+set node(8) [$ns node] 
+set xx(8) 400
+set yy(8) 100 
+$node(8) set X_ $xx(8)
+$node(8) set Y_ $yy(8)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 70 \
+
+set node(9) [$ns node] 
+set xx(9) 500
+set yy(9) 610 
+$node(9) set X_ $xx(9)
+$node(9) set Y_ $yy(9)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 89 \
+
+set node(10) [$ns node] 
+set xx(10) 700
+set yy(10) 20 
+$node(10) set X_ $xx(10)
+$node(10) set Y_ $yy(10)
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 87 \
+
+set node(11) [$ns node] 
+set xx(11) 500
+set yy(11) 600 
+$node(11) set X_ $xx(11)
+$node(11) set Y_ $yy(11)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 65 \
+
+set node(12) [$ns node] 
+set xx(12) 50
+set yy(12) 20 
+$node(12) set X_ $xx(12)
+$node(12) set Y_ $yy(12)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 88 \
+
+set node(13) [$ns node] 
+set xx(13) 55
+set yy(13) 100 
+$node(13) set X_ $xx(13)
+$node(13) set Y_ $yy(13)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 77 \
+
+set node(14) [$ns node] 
+set xx(14) 350
+set yy(14) 210 
+$node(14) set X_ $xx(14)
+$node(14) set Y_ $yy(14)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 90 \
+
+set node(15) [$ns node] 
+set xx(15) 100
+set yy(15) 200 
+$node(15) set X_ $xx(15)
+$node(15) set Y_ $yy(15)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 78 \
+
+set node(16) [$ns node] 
+set xx(16) 600
+set yy(16) 800 
+$node(16) set X_ $xx(16)
+$node(16) set Y_ $yy(16)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 65 \
+
+set node(17) [$ns node] 
+set xx(17) 650
+set yy(17) 400 
+$node(17) set X_ $xx(17)
+$node(17) set Y_ $yy(17)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 86 \
+
+set node(18) [$ns node] 
+set xx(18) 200
+set yy(18) 200 
+$node(18) set X_ $xx(18)
+$node(18) set Y_ $yy(18)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 70 \
+
+set node(19) [$ns node] 
+set xx(19) 390
+set yy(19) 250 
+$node(19) set X_ $xx(19)
+$node(19) set Y_ $yy(19)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 84 \
+
+set node(20) [$ns node] 
+set xx(20) 400
+set yy(20) 500 
+$node(20) set X_ $xx(20)
+$node(20) set Y_ $yy(20)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 77 \
+
+set node(21) [$ns node] 
+set xx(21) 20
+set yy(21) 200 
+$node(21) set X_ $xx(21)
+$node(21) set Y_ $yy(21)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 96 \
+
+set node(22) [$ns node] 
+set xx(22) 10
+set yy(22) 400 
+$node(22) set X_ $xx(22)
+$node(22) set Y_ $yy(22)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 93 \  
+ 
+set node(23) [$ns node] 
+set xx(23) 500
+set yy(23) 510 
+$node(23) set X_ $xx(23)
+$node(23) set Y_ $yy(23)
+ 
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 100 \
+
+
+
+set node(24) [$ns node] 
+set xx(24) 600
+set yy(24) 600 
+$node(24) set X_ $xx(24)
+$node(24) set Y_ $yy(24)
+
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 50 \
+
+
+
+set node(25) [$ns node] 
+set xx(25) 300
+set yy(25) 760 
+$node(25) set X_ $xx(25)
+$node(25) set Y_ $yy(25)
+
+
+
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+
+
+set node(26) [$ns node]
+
+set xx(26) 750
+set yy(26) 130 
+$node(26) set X_ $xx(26)
+$node(26) set Y_ $yy(26)
+
+
+
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 87 \
+
+
+
+set node(27) [$ns node] 
+set xx(27) 770
+set yy(27) 770 
+$node(27) set X_ $xx(27)
+$node(27) set Y_ $yy(27)
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 65 \
+
+
+
+set node(28) [$ns node] 
+set xx(28) 320
+set yy(28) 450 
+$node(28) set X_ $xx(28)
+$node(28) set Y_ $yy(28)
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 91 \
+
+
+
+set node(29) [$ns node] 
+set xx(29) 700
+set yy(29) 700 
+$node(29) set X_ $xx(29)
+$node(29) set Y_ $yy(29)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 98 \
+
+set node(30) [$ns node] 
+set xx(30) 800
+set yy(30) 780 
+$node(30) set X_ $xx(30)
+$node(30) set Y_ $yy(30)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 87 \
+
+set node(31) [$ns node] 
+set xx(31) 150
+set yy(31) 250
+$node(31) set X_ $xx(31)
+$node(31) set Y_ $yy(31)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 54 \
+
+set node(32) [$ns node] 
+set xx(32) 300
+set yy(32) 300
+$node(32) set X_ $xx(32)
+$node(32) set Y_ $yy(32)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 87 \
+
+set node(33) [$ns node] 
+set xx(33) 150
+set yy(33) 60
+$node(33) set X_ $xx(33)
+$node(33) set Y_ $yy(33)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 77 \
+
+set node(34) [$ns node] 
+set xx(34) 100
+set yy(34) 400
+$node(34) set X_ $xx(34)
+$node(34) set Y_ $yy(34)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 89 \
+
+set node(35) [$ns node] 
+set xx(35) 40
+set yy(35) 200
+$node(35) set X_ $xx(35)
+$node(35) set Y_ $yy(35)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 97 \
+
+set node(36) [$ns node] 
+set xx(36) 800
+set yy(36) 900
+$node(36) set X_ $xx(36)
+$node(36) set Y_ $yy(36)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 95 \
+
+set node(37) [$ns node] 
+set xx(37) 350
+set yy(37) 70
+$node(37) set X_ $xx(37)
+$node(37) set Y_ $yy(37)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 52 \
+
+set node(38) [$ns node] 
+set xx(38) 270
+set yy(38) 100
+$node(38) set X_ $xx(38)
+$node(38) set Y_ $yy(38)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 54 \
+
+set node(39) [$ns node] 
+set xx(39) 80
+set yy(39) 70
+$node(39) set X_ $xx(39)
+$node(39) set Y_ $yy(39)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 63 \
+
+set node(40) [$ns node] 
+set xx(40) 850
+set yy(40) 730
+$node(40) set X_ $xx(40)
+$node(40) set Y_ $yy(40)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 65 \
+
+set node(41) [$ns node] 
+set xx(41) 657
+set yy(41) 50
+$node(41) set X_ $xx(41)
+$node(41) set Y_ $yy(41)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 75 \
+
+set node(42) [$ns node] 
+set xx(42) 100
+set yy(42) 50
+$node(42) set X_ $xx(42)
+$node(42) set Y_ $yy(42)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 88 \
+
+set node(43) [$ns node] 
+set xx(43) 800
+set yy(43) 400
+$node(43) set X_ $xx(43)
+$node(43) set Y_ $yy(43)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 66 \
+
+set node(44) [$ns node] 
+set xx(44) 350
+set yy(44) 150
+$node(44) set X_ $xx(44)
+$node(44) set Y_ $yy(44)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(45) [$ns node] 
+set xx(45) 680
+set yy(45) 480
+$node(45) set X_ $xx(45)
+$node(45) set Y_ $yy(45)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(46) [$ns node] 
+set xx(46) 350
+set yy(46) 600
+$node(46) set X_ $xx(46)
+$node(46) set Y_ $yy(46)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 89 \
+
+set node(47) [$ns node] 
+set xx(47) 700
+set yy(47) 799
+$node(47) set X_ $xx(47)
+$node(47) set Y_ $yy(47)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 88 \
+
+set node(48) [$ns node] 
+set xx(48) 300
+set yy(48) 100
+$node(48) set X_ $xx(48)
+$node(48) set Y_ $yy(48)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 98 \
+
+set node(49) [$ns node] 
+set xx(49) 650
+set yy(49) 500
+$node(49) set X_ $xx(49)
+$node(49) set Y_ $yy(49)
+
+
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 30 \
+
+set node(50) [$ns node] 
+set xx(50) 200
+set yy(50) 342 
+$node(50) set X_ $xx(50)
+$node(50) set Y_ $yy(50)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 89 \
+
+set node(51) [$ns node] 
+set xx(51) 342
+set yy(51) 768 
+$node(51) set X_ $xx(51)
+$node(51) set Y_ $yy(51)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 34 \
+
+set node(52) [$ns node] 
+set xx(52) 324
+set yy(52) 2
+$node(52) set X_ $xx(52)
+$node(52) set Y_ $yy(52)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 90 \
+
+set node(53) [$ns node] 
+set xx(53) 875
+set yy(53) 564 
+$node(53) set X_ $xx(53)
+$node(53) set Y_ $yy(53)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 47 \
+
+set node(54) [$ns node] 
+set xx(54) 675
+set yy(54) 453 
+$node(54) set X_ $xx(54)
+$node(54) set Y_ $yy(54)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 39 \
+
+set node(55) [$ns node] 
+set xx(55) 29
+set yy(55) 21 
+$node(55) set X_ $xx(55)
+$node(55) set Y_ $yy(55)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 22 \
+
+set node(56) [$ns node] 
+set xx(56) 399
+set yy(56) 990
+$node(56) set X_ $xx(56)
+$node(56) set Y_ $yy(56)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 54 \
+
+set node(57) [$ns node] 
+set xx(57) 900
+set yy(57) 999 
+$node(57) set X_ $xx(57)
+$node(57) set Y_ $yy(57)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 35 \
+
+set node(58) [$ns node] 
+set xx(58) 484
+set yy(58) 400 
+$node(58) set X_ $xx(58)
+$node(58) set Y_ $yy(58)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 87 \
+
+set node(59) [$ns node] 
+set xx(59) 864
+set yy(59) 554 
+$node(59) set X_ $xx(59)
+$node(59) set Y_ $yy(59)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 45 \
+
+set node(60) [$ns node] 
+set xx(60) 41
+set yy(60) 400 
+$node(60) set X_ $xx(60)
+$node(60) set Y_ $yy(60)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 32 \
+
+set node(61) [$ns node] 
+set xx(61) 75
+set yy(61) 988 
+$node(61) set X_ $xx(61)
+$node(61) set Y_ $yy(61)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 38 \
+
+set node(62) [$ns node] 
+set xx(62) 99
+set yy(62) 100 
+$node(62) set X_ $xx(62)
+$node(62) set Y_ $yy(62)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 32 \
+
+set node(63) [$ns node] 
+set xx(63) 393
+set yy(63) 12 
+$node(63) set X_ $xx(63)
+$node(63) set Y_ $yy(63)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+set node(64) [$ns node] 
+set xx(64) 393
+set yy(64) 32
+$node(64) set X_ $xx(64)
+$node(64) set Y_ $yy(64)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+set node(65) [$ns node] 
+set xx(65) 453
+set yy(65) 756 
+$node(65) set X_ $xx(65)
+$node(65) set Y_ $yy(65)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 39 \
+
+set node(66) [$ns node] 
+set xx(66) 463
+set yy(66) 499 
+$node(66) set X_ $xx(66)
+$node(66) set Y_ $yy(66)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 78 \
+
+set node(67) [$ns node] 
+set xx(67) 932
+set yy(67) 563 
+$node(67) set X_ $xx(67)
+$node(67) set Y_ $yy(67)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 99 \
+
+set node(68) [$ns node] 
+set xx(68) 867
+set yy(68) 40 
+$node(68) set X_ $xx(68)
+$node(68) set Y_ $yy(68)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+set node(69) [$ns node] 
+set xx(69) 844
+set yy(69) 443 
+$node(69) set X_ $xx(69)
+$node(69) set Y_ $yy(69)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 49 \
+
+set node(70) [$ns node] 
+set xx(70) 564
+set yy(70) 444 
+$node(70) set X_ $xx(70)
+$node(70) set Y_ $yy(70)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 78 \
+
+set node(71) [$ns node] 
+set xx(71) 584
+set yy(71) 674 
+$node(71) set X_ $xx(71)
+$node(71) set Y_ $yy(71)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 68 \
+
+set node(72) [$ns node] 
+set xx(72) 574
+set yy(72) 685
+$node(72) set X_ $xx(72)
+$node(72) set Y_ $yy(72)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 48 \
+
+set node(73) [$ns node] 
+set xx(73) 68
+set yy(73) 40 
+$node(73) set X_ $xx(73)
+$node(73) set Y_ $yy(73)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+set node(74) [$ns node] 
+set xx(74) 68
+set yy(74) 955 
+$node(74) set X_ $xx(74)
+$node(74) set Y_ $yy(74)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+set node(75) [$ns node] 
+set xx(75) 500
+set yy(75) 500 
+$node(75) set X_ $xx(75)
+$node(75) set Y_ $yy(75)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 81 \
+
+set node(76) [$ns node] 
+set xx(76) 33
+set yy(76) 584 
+$node(76) set X_ $xx(76)
+$node(76) set Y_ $yy(76)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 57 \
+
+set node(77) [$ns node] 
+set xx(77) 755
+set yy(77) 786 
+$node(77) set X_ $xx(77)
+$node(77) set Y_ $yy(77)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 43 \
+
+set node(78) [$ns node] 
+set xx(78) 446
+set yy(78) 400 
+$node(78) set X_ $xx(78)
+$node(78) set Y_ $yy(78)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 34 \
+
+set node(79) [$ns node] 
+set xx(79) 555
+set yy(79) 877 
+$node(79) set X_ $xx(79)
+$node(79) set Y_ $yy(79)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 56 \
+
+set node(80) [$ns node] 
+set xx(80) 879
+set yy(80) 67 
+$node(80) set X_ $xx(80)
+$node(80) set Y_ $yy(80)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 78 \
+
+set node(81) [$ns node] 
+set xx(81) 651
+set yy(81) 56 
+$node(81) set X_ $xx(81)
+$node(81) set Y_ $yy(81)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 78 \
+
+set node(82) [$ns node] 
+set xx(82) 765
+set yy(82) 342 
+$node(82) set X_ $xx(82)
+$node(82) set Y_ $yy(82)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(83) [$ns node] 
+set xx(83) 657
+set yy(83) 432 
+$node(83) set X_ $xx(83)
+$node(83) set Y_ $yy(83)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+set node(84) [$ns node] 
+set xx(84) 766
+set yy(84) 765 
+$node(84) set X_ $xx(84)
+$node(84) set Y_ $yy(84)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 44 \
+
+set node(85) [$ns node] 
+set xx(85) 654
+set yy(85) 544 
+$node(85) set X_ $xx(85)
+$node(85) set Y_ $yy(85)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 23 \
+
+set node(86) [$ns node] 
+set xx(86) 566
+set yy(86) 321 
+$node(86) set X_ $xx(86)
+$node(86) set Y_ $yy(86)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(87) [$ns node] 
+set xx(87) 677
+set yy(87) 566 
+$node(87) set X_ $xx(87)
+$node(87) set Y_ $yy(87)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 87 \
+
+set node(88) [$ns node] 
+set xx(88) 654
+set yy(88) 345 
+$node(88) set X_ $xx(88)
+$node(88) set Y_ $yy(88)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 78 \
+
+set node(89) [$ns node] 
+set xx(89) 432
+set yy(89) 345 
+$node(89) set X_ $xx(89)
+$node(89) set Y_ $yy(89)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 67 \
+
+set node(90) [$ns node] 
+set xx(90) 788
+set yy(90) 876 
+$node(90) set X_ $xx(90)
+$node(90) set Y_ $yy(90)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 56 \
+
+set node(91) [$ns node] 
+set xx(91) 788
+set yy(91) 542 
+$node(91) set X_ $xx(91)
+$node(91) set Y_ $yy(91)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 56 \
+
+set node(92) [$ns node] 
+set xx(92) 765
+set yy(92) 765 
+$node(92) set X_ $xx(92)
+$node(92) set Y_ $yy(92)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 34 \
+
+set node(93) [$ns node] 
+set xx(93) 675
+set yy(93) 234 
+$node(93) set X_ $xx(93)
+$node(93) set Y_ $yy(93)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 54 \
+
+set node(94) [$ns node] 
+set xx(94) 453
+set yy(94) 675 
+$node(94) set X_ $xx(94)
+$node(94) set Y_ $yy(94)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 54 \
+
+set node(95) [$ns node] 
+set xx(95) 544
+set yy(95) 432 
+$node(95) set X_ $xx(95)
+$node(95) set Y_ $yy(95)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(96) [$ns node] 
+set xx(96) 455
+set yy(96) 234 
+$node(96) set X_ $xx(96)
+$node(96) set Y_ $yy(96)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(97) [$ns node] 
+set xx(97) 654
+set yy(97) 765 
+$node(97) set X_ $xx(97)
+$node(97) set Y_ $yy(97)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(98) [$ns node] 
+set xx(98) 654
+set yy(98) 654 
+$node(98) set X_ $xx(98)
+$node(98) set Y_ $yy(98)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 42 \
+
+set node(99) [$ns node] 
+set xx(99) 654
+set yy(99) 567 
+$node(99) set X_ $xx(99)
+$node(99) set Y_ $yy(99)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 32 \
+
+set node(100) [$ns node] 
+set xx(100) 444
+set yy(100) 499 
+$node(100) set X_ $xx(100)
+$node(100) set Y_ $yy(100)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 55 \
+
+set node(101) [$ns node] 
+set xx(101) 644
+set yy(101) 44
+$node(101) set X_ $xx(101)
+$node(101) set Y_ $yy(101)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 88 \
+
+set node(102) [$ns node] 
+set xx(102) 344
+set yy(102) 483 
+$node(102) set X_ $xx(102)
+$node(102) set Y_ $yy(102)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 54 \
+
+set node(103) [$ns node] 
+set xx(103) 843
+set yy(103) 333
+$node(103) set X_ $xx(103)
+$node(103) set Y_ $yy(103)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 77 \
+
+set node(104) [$ns node] 
+set xx(104) 342
+set yy(104) 484
+$node(104) set X_ $xx(104)
+$node(104) set Y_ $yy(104)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 43 \
+
+set node(105) [$ns node] 
+set xx(105) 123
+set yy(105) 332 
+$node(105) set X_ $xx(105)
+$node(105) set Y_ $yy(105)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 12 \
+
+set node(106) [$ns node] 
+set xx(106) 332
+set yy(106) 33 
+$node(106) set X_ $xx(106)
+$node(106) set Y_ $yy(106)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 54 \
+
+set node(107) [$ns node] 
+set xx(107) 333
+set yy(107) 33 
+$node(107) set X_ $xx(107)
+$node(107) set Y_ $yy(107)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 87 \
+
+set node(108) [$ns node] 
+set xx(108) 34
+set yy(108) 332 
+$node(108) set X_ $xx(108)
+$node(108) set Y_ $yy(108)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 87 \
+
+set node(109) [$ns node] 
+set xx(109) 64
+set yy(109) 22
+$node(109) set X_ $xx(109)
+$node(109) set Y_ $yy(109)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 65 \
+
+set node(110) [$ns node] 
+set xx(110) 455
+set yy(110) 583 
+$node(110) set X_ $xx(110)
+$node(110) set Y_ $yy(110)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 44 \
+
+set node(111) [$ns node] 
+set xx(111) 544
+set yy(111) 554 
+$node(111) set X_ $xx(111)
+$node(111) set Y_ $yy(111)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 48 \
+
+set node(112) [$ns node] 
+set xx(112) 34
+set yy(112) 557 
+$node(112) set X_ $xx(112)
+$node(112) set Y_ $yy(112)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(113) [$ns node] 
+set xx(113) 654
+set yy(113) 595 
+$node(113) set X_ $xx(113)
+$node(113) set Y_ $yy(113)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 65 \
+
+set node(114) [$ns node] 
+set xx(114) 555
+set yy(114) 567 
+$node(114) set X_ $xx(114)
+$node(114) set Y_ $yy(114)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(115) [$ns node] 
+set xx(115) 999
+set yy(115) 599
+$node(115) set X_ $xx(115)
+$node(115) set Y_ $yy(115)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 87 \
+
+set node(116) [$ns node] 
+set xx(116) 995
+set yy(116) 557 
+$node(116) set X_ $xx(116)
+$node(116) set Y_ $yy(116)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 87 \
+
+set node(117) [$ns node] 
+set xx(117) 444
+set yy(117) 532 
+$node(117) set X_ $xx(117)
+$node(117) set Y_ $yy(117)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(118) [$ns node] 
+set xx(118) 544
+set yy(118) 494 
+$node(118) set X_ $xx(118)
+$node(118) set Y_ $yy(118)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 90 \
+
+set node(119) [$ns node] 
+set xx(119) 595
+set yy(119) 504 
+$node(119) set X_ $xx(119)
+$node(119) set Y_ $yy(119)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 93 \
+
+set node(120) [$ns node] 
+set xx(120) 645
+set yy(120) 434 
+$node(120) set X_ $xx(120)
+$node(120) set Y_ $yy(120)
+
+$ns node-config -adhocRouting $UR
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 54 \
+
+set node(121) [$ns node] 
+$ns at 0.01 "$node(121) label \"U-to-R\"" 
+
+set xx(121) 443
+set yy(121) 543 
+$node(121) set X_ $xx(121)
+$node(121) set Y_ $yy(121)
+
+$ns node-config -adhocRouting AODV
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 54 \
+
+set node(122) [$ns node] 
+set xx(122) 33
+set yy(122) 544 
+$node(122) set X_ $xx(122)
+$node(122) set Y_ $yy(122)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 65 \
+
+set node(123) [$ns node] 
+set xx(123) 233
+set yy(123) 545 
+$node(123) set X_ $xx(123)
+$node(123) set Y_ $yy(123)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 85 \
+
+set node(124) [$ns node] 
+set xx(124) 477
+set yy(124) 494 
+$node(124) set X_ $xx(124)
+$node(124) set Y_ $yy(124)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 42 \
+
+set node(125) [$ns node] 
+set xx(125) 554
+set yy(125) 585 
+$node(125) set X_ $xx(125)
+$node(125) set Y_ $yy(125)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 54 \
+
+set node(126) [$ns node] 
+set xx(126) 504
+set yy(126) 585 
+$node(126) set X_ $xx(126)
+$node(126) set Y_ $yy(126)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(127) [$ns node] 
+set xx(127) 595
+set yy(127) 494
+$node(127) set X_ $xx(127)
+$node(127) set Y_ $yy(127)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 65 \
+
+set node(128) [$ns node] 
+set xx(128) 543
+set yy(128) 334 
+$node(128) set X_ $xx(128)
+$node(128) set Y_ $yy(128)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 32 \
+
+set node(129) [$ns node] 
+set xx(129) 444
+set yy(129) 238 
+$node(129) set X_ $xx(129)
+$node(129) set Y_ $yy(129)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 43 \
+
+set node(130) [$ns node] 
+set xx(130) 100
+set yy(130) 100 
+$node(130) set X_ $xx(130)
+$node(130) set Y_ $yy(130)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 53 \
+
+set node(131) [$ns node] 
+set xx(131) 64
+set yy(131) 44 
+$node(131) set X_ $xx(131)
+$node(131) set Y_ $yy(131)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 44 \
+
+set node(132) [$ns node] 
+set xx(132) 344
+set yy(132) 443 
+$node(132) set X_ $xx(132)
+$node(132) set Y_ $yy(132)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 64 \
+
+set node(133) [$ns node] 
+set xx(133) 300
+set yy(133) 233 
+$node(133) set X_ $xx(133)
+$node(133) set Y_ $yy(133)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 77 \
+
+set node(134) [$ns node] 
+set xx(134) 64
+set yy(134) 967 
+$node(134) set X_ $xx(134)
+$node(134) set Y_ $yy(134)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 65 \
+
+set node(135) [$ns node] 
+set xx(135) 64
+set yy(135) 867 
+$node(135) set X_ $xx(135)
+$node(135) set Y_ $yy(135)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 55 \
+
+set node(136) [$ns node] 
+set xx(136) 65
+set yy(136) 700 
+$node(136) set X_ $xx(136)
+$node(136) set Y_ $yy(136)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 76 \
+
+set node(137) [$ns node] 
+set xx(137) 45
+set yy(137) 600 
+$node(137) set X_ $xx(137)
+$node(137) set Y_ $yy(137)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 65 \
+
+set node(138) [$ns node] 
+set xx(138) 43
+set yy(138) 500 
+$node(138) set X_ $xx(138)
+$node(138) set Y_ $yy(138)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 65 \
+
+set node(139) [$ns node] 
+set xx(139) 30
+set yy(139) 400
+$node(139) set X_ $xx(139)
+$node(139) set Y_ $yy(139)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 86 \
+
+set node(140) [$ns node] 
+set xx(140) 10
+set yy(140) 300 
+$node(140) set X_ $xx(140)
+$node(140) set Y_ $yy(140)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 55 \
+
+set node(141) [$ns node] 
+set xx(141) 6
+set yy(141) 267 
+$node(141) set X_ $xx(141)
+$node(141) set Y_ $yy(141)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 65 \
+
+set node(142) [$ns node] 
+set xx(142) 854
+set yy(142) 967 
+$node(142) set X_ $xx(142)
+$node(142) set Y_ $yy(142)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 33 \
+
+set node(143) [$ns node] 
+set xx(143) 754
+set yy(143) 967 
+$node(143) set X_ $xx(143)
+$node(143) set Y_ $yy(143)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 66 \
+
+set node(144) [$ns node] 
+set xx(144) 654
+set yy(144) 967 
+$node(144) set X_ $xx(144)
+$node(144) set Y_ $yy(144)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 54 \
+
+set node(145) [$ns node] 
+set xx(145) 555
+set yy(145) 967 
+$node(145) set X_ $xx(145)
+$node(145) set Y_ $yy(145)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 45 \
+
+set node(146) [$ns node] 
+set xx(146) 454
+set yy(146) 967 
+$node(146) set X_ $xx(146)
+$node(146) set Y_ $yy(146)
+
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 42 \
+
+set node(147) [$ns node] 
+set xx(147) 354
+set yy(147) 967 
+$node(147) set X_ $xx(147)
+$node(147) set Y_ $yy(147)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 32 \
+
+set node(148) [$ns node] 
+set xx(148) 254
+set yy(148) 967 
+$node(148) set X_ $xx(148)
+$node(148) set Y_ $yy(148)
+
+$ns node-config  -energyModel EnergyModel \
+-initialEnergy 44 \
+
+set node(149) [$ns node] 
+set xx(149) 154
+set yy(149) 967 
+$node(149) set X_ $xx(149)
+$node(149) set Y_ $yy(149)
+
+
+#define node initial position in nam
+
+for {set i 0} {$i < $val(nn) } { incr i } {
+# 25 define the node size for nam
+$ns initial_node_pos $node($i) 35
+
+}
+
+#Generation of mobile nodes 
+
+$ns at 5.0  "$node(0) setdest 450.0 250.0 30.0"
+$ns at 1.0 "$node(1) setdest 150.0 240.0 30.0"
+$ns at 5.0 "$node(2) setdest 650.0 300.0 30.0"
+$ns at 6.0 "$node(3) setdest 799.0 600.0 30.0"
+$ns at 3.0 "$node(4) setdest 1.0 781.0 30.0"
+$ns at 4.0 "$node(5) setdest 210.0 34.0 30.0"
+$ns at 3.0 "$node(6) setdest 25.0 100.0 30.0"
+$ns at 2.0 "$node(7) setdest 50.0 150.0 30.0"
+$ns at 1.0 "$node(8) setdest 60.0 200.0 30.0"
+$ns at 2.0 "$node(9) setdest 150.0 10.0 30.0"
+$ns at 3.0 "$node(10) setdest 250.0 10.0 30.0"
+$ns at 4.0 "$node(11) setdest 300.0 300.0 30.0"
+$ns at 7.0 "$node(12) setdest 10.0 340.0 30.0"
+$ns at 7.0 "$node(13) setdest 100.0 340.0 30.0"
+$ns at 7.0 "$node(14) setdest 10.0 240.0 30.0"
+$ns at 3.0 "$node(15) setdest 10.0 740.0 30.0"
+$ns at 5.0 "$node(16) setdest 600.0 200.0 30.0"
+$ns at 7.0 "$node(17) setdest 600.0 34.0 30.0"
+$ns at 7.0 "$node(18) setdest 700.0 614.0 30.0"
+$ns at 2.0 "$node(19) setdest 400.0 325.0 30.0"
+$ns at 7.0 "$node(20) setdest 500.0 500.0 30.0"
+$ns at 8.0 "$node(21) setdest 30.0 780.0 30.0"
+$ns at 8.0 "$node(22) setdest 500.0 630.0 30.0"
+$ns at 5.0 "$node(23) setdest 150.0 750.0 30.0"
+$ns at 3.0 "$node(24) setdest 788.0 560.0 30.0"
+$ns at 2.0 "$node(25) setdest 10.0 450.0 30.0"
+$ns at 1.0 "$node(26) setdest 180.0 240.0 30.0"
+$ns at 9.0 "$node(27) setdest 10.0 400.0 30.0"
+$ns at 8.0 "$node(28) setdest 250.0 440.0 30.0"
+$ns at 6.0 "$node(29) setdest 50.0 3.0 30.0"
+$ns at 1.0 "$node(30) setdest 100.0 500.0 30.0"
+$ns at 6.0 "$node(31) setdest 550.0 310.0 30.0"
+$ns at 6.0 "$node(32) setdest 250.0 33.0 30.0"
+$ns at 3.0 "$node(33) setdest 50.0 603.0 30.0"
+$ns at 3.0 "$node(34) setdest 100.0 333.0 30.0"
+$ns at 4.0 "$node(35) setdest 10.0 193.0 30.0"
+$ns at 8.0 "$node(36) setdest 50.0 35.0 30.0"
+$ns at 8.0 "$node(37) setdest 50.0 3.0 30.0"
+$ns at 9.0 "$node(38) setdest 10.0 120.0 30.0"
+$ns at 6.0 "$node(39) setdest 50.0 12.0 30.0"
+$ns at 9.0 "$node(40) setdest 300.0 333.0 30.0"
+$ns at 2.0 "$node(41) setdest 300.0 450.0 30.0"
+$ns at 9.0 "$node(42) setdest 50.0 105.0 30.0"
+$ns at 6.0 "$node(43) setdest 500.0 500.0 30.0"
+$ns at 7.0 "$node(44) setdest 100.0 490.0 30.0"
+$ns at 6.0 "$node(45) setdest 50.0 355.0 30.0"
+$ns at 2.0 "$node(46) setdest 350.0 600.0 30.0"
+$ns at 9.0 "$node(47) setdest 500.0 679.0 30.0"
+$ns at 3.0 "$node(48) setdest 250.0 740.0 30.0"
+$ns at 6.0 "$node(49) setdest 10.0 700.0 30.0"
+$ns at 1.0  "$node(50) setdest 950.0 950.0 30.0"
+$ns at 2.0 "$node(51) setdest 780.0 670.0 30.0"
+$ns at 4.0 "$node(52) setdest 540.0 650.0 30.0"
+$ns at 5.0 "$node(53) setdest 549.0 430.0 30.0"
+$ns at 8.0 "$node(54) setdest 165.0 123.0 30.0"
+$ns at 4.0 "$node(55) setdest 123.0 435.0 30.0"
+$ns at 3.0 "$node(56) setdest 456.0 543.0 30.0"
+$ns at 2.0 "$node(57) setdest 324.0 543.0 30.0"
+$ns at 5.0 "$node(58) setdest 432.0 430.0 30.0"
+$ns at 2.0 "$node(59) setdest 123.0 324.0 30.0"
+$ns at 3.0 "$node(60) setdest 342.0 564.0 30.0"
+$ns at 4.0 "$node(61) setdest 654.0 50.0 30.0"
+$ns at 7.0 "$node(62) setdest 452.0 899.0 30.0"
+$ns at 3.0 "$node(63) setdest 700.0 740.0 30.0"
+$ns at 2.0 "$node(64) setdest 610.0 800.0 30.0"
+$ns at 1.0 "$node(65) setdest 810.0 940.0 30.0"
+$ns at 2.0 "$node(66) setdest 880.0 870.0 30.0"
+$ns at 7.0 "$node(67) setdest 760.0 434.0 30.0"
+$ns at 2.0 "$node(68) setdest 710.0 764.0 30.0"
+$ns at 2.0 "$node(69) setdest 670.0 685.0 30.0"
+$ns at 7.0 "$node(70) setdest 780.0 760.0 30.0"
+$ns at 2.0 "$node(71) setdest 130.0 880.0 30.0"
+$ns at 8.0 "$node(72) setdest 60.0 30.0 30.0"
+$ns at 9.0 "$node(73) setdest 900.0 150.0 30.0"
+$ns at 2.0 "$node(74) setdest 788.0 560.0 30.0"
+$ns at 2.0 "$node(75) setdest 110.0 350.0 30.0"
+$ns at 3.0 "$node(76) setdest 190.0 40.0 30.0"
+$ns at 2.0 "$node(77) setdest 510.0 540.0 30.0"
+$ns at 3.0 "$node(78) setdest 850.0 650.0 30.0"
+$ns at 7.0 "$node(79) setdest 250.0 103.0 30.0"
+$ns at 9.0 "$node(80) setdest 10.0 340.0 30.0"
+$ns at 2.0 "$node(81) setdest 120.0 450.0 30.0"
+$ns at 2.0 "$node(82) setdest 340.0 363.0 30.0"
+$ns at 4.0 "$node(83) setdest 240.0 403.0 30.0"
+$ns at 6.0 "$node(84) setdest 540.0 383.0 30.0"
+$ns at 7.0 "$node(85) setdest 105.0 183.0 30.0"
+$ns at 8.0 "$node(86) setdest 350.0 135.0 30.0"
+$ns at 3.0 "$node(87) setdest 250.0 103.0 30.0"
+$ns at 2.0 "$node(88) setdest 410.0 50.0 30.0"
+$ns at 4.0 "$node(89) setdest 430.0 212.0 30.0"
+$ns at 8.0 "$node(90) setdest 401.0 33.0 30.0"
+$ns at 3.0 "$node(91) setdest 231.0 321.0 30.0"
+$ns at 3.0 "$node(92) setdest 321.0 234.0 30.0"
+$ns at 7.0 "$node(93) setdest 325.0 345.0 30.0"
+$ns at 9.0 "$node(94) setdest 432.0 401.0 30.0"
+$ns at 7.0 "$node(95) setdest 204.0 155.0 30.0"
+$ns at 3.0 "$node(96) setdest 150.0 60.0 30.0"
+$ns at 1.0 "$node(97) setdest 450.0 279.0 30.0"
+$ns at 3.0 "$node(98) setdest 540.0 320.0 30.0"
+$ns at 4.0 "$node(99) setdest 310.0 450.0 30.0"
+
+
+
+#Set a TCP connection between node 138 and node 4
+
+set tcp1 [new Agent/TCP/Newreno]
+$tcp1 set class_ 1
+set sink12 [new Agent/TCPSink]
+$ns attach-agent $node(138) $tcp1
+$ns attach-agent $node(4) $sink12
+$ns connect $tcp1 $sink12
+set ftp1 [new Application/FTP]
+$ftp1 attach-agent $tcp1
+$ns at 1.0 "$ftp1 start"
+$tcp1 set fid_ 2
+
+
+
+
+#set a tcp connection between node 42 and node 144
+set tcp2 [new Agent/TCP/Newreno]
+$tcp2 set class_ 1
+set sink13 [new Agent/TCPSink]
+$ns attach-agent $node(42) $tcp2
+$ns attach-agent $node(144) $sink13
+$ns connect $tcp2 $sink13
+set ftp2 [new Application/FTP]
+$ftp2 attach-agent $tcp2
+$ns at 2.0 "$ftp2 start"
+$tcp2 set fid_ 2
+ 
+
+
+
+
+#set a udp connection between node 19 and node 9
+set udp1 [new Agent/UDP]
+
+$ns attach-agent $node(19) $udp1
+
+set sink1 [new Agent/LossMonitor]
+
+$ns attach-agent $node(9) $sink1
+$ns connect $udp1 $sink1
+
+#set a udp connection between node 10 and node 15
+set udp2 [new Agent/UDP]
+
+$ns attach-agent $node(10) $udp2
+
+set sink5 [new Agent/LossMonitor]
+
+$ns attach-agent $node(15) $sink5
+$ns connect $udp2 $sink5
+
+
+
+#set a udp connection between node 20 and node 27
+set udp3 [new Agent/UDP]
+
+$ns attach-agent $node(20) $udp3
+
+set sink2 [new Agent/LossMonitor]
+
+$ns attach-agent $node(27) $sink2
+$ns connect $udp3 $sink2
+
+
+#set a udp connection between node 31 and node 3
+set udp4 [new Agent/UDP]
+
+$ns attach-agent $node(31) $udp4
+
+set sink3 [new Agent/LossMonitor]
+
+$ns attach-agent $node(3) $sink3
+$ns connect $udp4 $sink3
+
+
+#set a udp connection between node 41 and node 17
+set udp5 [new Agent/UDP]
+
+$ns attach-agent $node(41) $udp5
+
+set sink4 [new Agent/LossMonitor]
+
+$ns attach-agent $node(17) $sink4
+$ns connect $udp5 $sink4
+
+
+#set a udp connection between node 67 and node 54
+set udp6 [new Agent/UDP]
+
+$ns attach-agent $node(67) $udp6
+
+set sink6 [new Agent/LossMonitor]
+
+$ns attach-agent $node(54) $sink6
+$ns connect $udp6 $sink6
+
+
+#set a udp connection between node 78 and node 89
+set udp7 [new Agent/UDP]
+
+$ns attach-agent $node(78) $udp7
+set sink7 [new Agent/LossMonitor]
+$ns attach-agent $node(89) $sink7
+$ns connect $udp7 $sink7
+
+#set a udp connection between node 76 and node 81
+set udp8 [new Agent/UDP]
+
+$ns attach-agent $node(76) $udp8
+set sink8 [new Agent/LossMonitor]
+$ns attach-agent $node(81) $sink8
+$ns connect $udp8 $sink8
+
+#set a udp connection between node 51 and node 87
+set udp9 [new Agent/UDP]
+
+$ns attach-agent $node(51) $udp9
+set sink9 [new Agent/LossMonitor]
+$ns attach-agent $node(87) $sink9
+$ns connect $udp9 $sink9
+
+
+#set a udp connection between node 77 and node 90
+set udp10 [new Agent/UDP]
+
+$ns attach-agent $node(77) $udp10
+set sink10 [new Agent/LossMonitor]
+$ns attach-agent $node(90) $sink10
+$ns connect $udp10 $sink10
+
+
+#set a udp connection between node 92 and node 99
+set udp11 [new Agent/UDP]
+
+$ns attach-agent $node(92) $udp11
+
+set sink11 [new Agent/LossMonitor]
+
+$ns attach-agent $node(99) $sink11
+$ns connect $udp11 $sink11
+
+proc attach-CBR-traffic { node sink size interval } {
+   #Get an instance of the simulator
+   set ns [Simulator instance]
+   #Create a CBR  agent and attach it to the node
+   set cbr [new Agent/CBR]
+   $ns attach-agent $node $cbr
+   $cbr set packetSize_ $size
+   $cbr set interval_ $interval
+
+   #Attach CBR source to sink;
+   $ns connect $cbr $sink
+   return $cbr
+  }
+
+set cbr1 [attach-CBR-traffic $node(19) $sink1 512 .15]
+$ns at 1.0 "$cbr1 start"
+set cbr2 [attach-CBR-traffic $node(10) $sink5 512 .15]
+$ns at 1.0 "$cbr2 start"
+set cbr3 [attach-CBR-traffic $node(20) $sink2 512 .15]
+$ns at 1.0 "$cbr3 start"
+set cbr4 [attach-CBR-traffic $node(31) $sink3 512 .15]
+$ns at 1.0 "$cbr4 start"
+set cbr5 [attach-CBR-traffic $node(41) $sink4 512 .15]
+$ns at 1.0 "$cbr5 start"
+set cbr6 [attach-CBR-traffic $node(67) $sink6 512 .15]
+$ns at 1.0 "$cbr6 start"
+set cbr7 [attach-CBR-traffic $node(78) $sink7 512 .15]
+$ns at 1.0 "$cbr7 start"
+set cbr8 [attach-CBR-traffic $node(76) $sink8 512 .15]
+$ns at 1.0 "$cbr8 start"
+set cbr9 [attach-CBR-traffic $node(51) $sink9 512 .15]
+$ns at 1.0 "$cbr9 start"
+set cbr10 [attach-CBR-traffic $node(77) $sink10 512 .15]
+$ns at 1.0 "$cbr10 start"
+set cbr11 [attach-CBR-traffic $node(92) $sink11 512 .15]
+$ns at 1.0 "$cbr11 start"
+
+
+# printing the window size 
+proc plotWindow {tcpSource file} {
+global ns
+set time 0.01
+set now [$ns now]
+
+set cwnd [$tcpSource set cwnd_]
+puts $file "$now $cwnd"
+$ns at [expr $now+$time] "plotWindow $tcpSource $file" }
+
+
+
+
+
+#Telling nodes when the simulation ends
+for {set i 0} {$i < $val(nn)} { incr i } {
+	$ns at $val(stop) "$node($i) reset" ;
+}
+
+###Vampire Attack##########
+
+set ON 1
+set OFF 0
+
+# enable debugging by default
+#set verbose ON
+
+set dos 38
+
+
+set total_host 200000
+
+set probing_port [Application/Worm set ScanPort]
+# probing packet size
+# slammer Worm UDP packets of 404 Bytes
+set p_size 404
+Application/Worm set ScanPacketSize $p_size
+Agent/MessagePassing set packetSize_ $p_size
+
+#	Application/Worm set ScanRate 1
+
+# 1.config the Normal network
+for {set i 0} {$i < 38} {incr i} {
+    set a($i) [new Agent/MessagePassing]
+    $node($i) attach $a($i) $probing_port
+    set w($i) [new Application/Worm/Dnh]
+    $w($i) attach-agent $a($i)
+    $w($i) addr-range 0 [expr $val(nn)- 2]
+    
+}
+
+
+# 2. set up Attacker node
+set a(38) [new Agent/MessagePassing]
+$node(38) attach $a(38) $probing_port
+set w(38) [new Application/Worm/An]
+$w(38) attach-agent $a(38)
+$w(38) addr-range 38 $total_host
+$w(38) dn-range 0 38
+$w(38) v_percent 0.1
+$w(38) gamma 0.0
+$w(38) beta 0.1
+
+
+# recv all packets coming in
+set p [$node(38) set dmux_]
+$p defaulttarget $a(38) 
+
+#[$node($an_id) entry] defaulttarget $p
+
+# now starts infection
+$ns at 90.0 "$w(38) start"
+$ns at 95.0 "$w(38) stop"
+
+####END vamipre Attack#######
+
+
+#ending nam and the simualtion 
+$ns at $val(stop) "$ns nam-end-wireless $val(stop)"
+$ns at $val(stop) "stop"
+$ns at 100.01 "puts \"end simulation\" ; $ns halt"
+
+proc stop {} {
+
+	global ns  tracefd namtrcae
+	$ns flush-trace
+	close $tracefd
+	exit 0
+}
+
+$ns run
